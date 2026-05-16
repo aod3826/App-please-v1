@@ -1,0 +1,310 @@
+// ============================================================
+//  Code.gs — Google Apps Script Backend
+//  ระบบคลังรูปภาพกิจกรรม | Activity Photo Gallery
+// ============================================================
+
+// ─── ค่าคงที่หลัก ───────────────────────────────────────────
+const SPREADSHEET_ID = '1gNSiEpDvCcPAafZo4eMzKvMPcpEQe7IGnsUrzQA4mPg';
+const FOLDER_ID      = '1RiTa1GkymfQXaY33cDnUiOpby7Y2Cpq8';
+const SHEET_NAME     = 'Gallery';
+
+// คอลัมน์ใน Google Sheet (index เริ่มจาก 0)
+const COL = {
+  DATE:        0,  // A — วันที่จัดกิจกรรม
+  TITLE:       1,  // B — ชื่อกิจกรรม
+  DESCRIPTION: 2,  // C — รายละเอียด
+  CATEGORY:    3,  // D — หมวดหมู่
+  IMAGE_URL:   4,  // E — ลิงก์รูปภาพ Google Drive
+  STATUS:      5,  // F — สถานะ ('แสดง' หรือ 'ซ่อน')
+};
+
+// ═══════════════════════════════════════════════════════════
+//  doGet — Entry Point (รองรับ CORS จาก GitHub Pages)
+// ═══════════════════════════════════════════════════════════
+function doGet(e) {
+  const action = (e && e.parameter && e.parameter.action)
+    ? e.parameter.action
+    : 'getGallery';
+
+  let result;
+  switch (action) {
+    case 'getGallery': result = getGalleryData(); break;
+    default:           result = { success: false, error: 'Unknown action: ' + action };
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  getGalleryData — ดึงข้อมูลจากชีต Gallery
+//   • กรองแถว Status = 'ซ่อน' ออก
+//   • แปลง Google Drive link → Direct link
+//   • ส่งออกเป็น JSON พร้อม metadata
+// ═══════════════════════════════════════════════════════════
+function getGalleryData() {
+  try {
+    const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
+
+    if (!sheet) {
+      return { success: false, error: `ไม่พบแผ่นงานชื่อ "${SHEET_NAME}"` };
+    }
+
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) {
+      return { success: true, data: [], total: 0, categories: [], message: 'ยังไม่มีข้อมูล' };
+    }
+
+    const values = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
+    const items  = [];
+
+    values.forEach((row, index) => {
+      const status = String(row[COL.STATUS]).trim();
+      if (status === 'ซ่อน') return;
+      if (!row[COL.TITLE] && !row[COL.IMAGE_URL]) return;
+
+      items.push({
+        id:          index + 2,
+        date:        formatDate(row[COL.DATE]),
+        title:       String(row[COL.TITLE]).trim()       || '(ไม่มีชื่อ)',
+        description: String(row[COL.DESCRIPTION]).trim() || '',
+        category:    String(row[COL.CATEGORY]).trim()    || 'ทั่วไป',
+        imageUrl:    convertDriveLink(String(row[COL.IMAGE_URL]).trim()),
+        status:      status || 'แสดง',
+      });
+    });
+
+    const categories = [...new Set(items.map(i => i.category))].sort();
+
+    return {
+      success:    true,
+      data:       items,
+      total:      items.length,
+      categories: categories,
+      updatedAt:  new Date().toISOString(),
+    };
+
+  } catch (err) {
+    return { success: false, error: 'เกิดข้อผิดพลาด: ' + err.message };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  setupSheets — ติดตั้งโครงสร้าง Sheet + ข้อมูลตัวอย่าง
+//
+//  วิธีใช้:
+//    1. เปิด Apps Script Editor
+//    2. เลือกฟังก์ชัน setupSheets จาก Dropdown
+//    3. กด ▶ Run (รันครั้งเดียวพอ)
+//    4. ดูผลใน Execution Log
+// ═══════════════════════════════════════════════════════════
+function setupSheets() {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+    // ── 1. สร้าง / เคลียร์ชีต Gallery ──────────────────────
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    if (sheet) {
+      sheet.clearContents();
+      sheet.clearFormats();
+      Logger.log(`♻️  เคลียร์ชีต "${SHEET_NAME}" เรียบร้อย`);
+    } else {
+      sheet = ss.insertSheet(SHEET_NAME);
+      Logger.log(`🆕 สร้างชีต "${SHEET_NAME}" ใหม่เรียบร้อย`);
+    }
+
+    // ── 2. หัวตาราง (Header) ────────────────────────────────
+    const headers = ['Date', 'Title', 'Description', 'Category', 'ImageURL', 'Status'];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+
+    // สไตล์หัวตาราง
+    sheet.getRange(1, 1, 1, headers.length)
+      .setBackground('#0369a1')
+      .setFontColor('#ffffff')
+      .setFontWeight('bold')
+      .setHorizontalAlignment('center')
+      .setFontSize(11);
+
+    // ── 3. ข้อมูลตัวอย่าง (Sample Data) ────────────────────
+    const fmt  = d => Utilities.formatDate(d, 'Asia/Bangkok', 'dd/MM/yyyy');
+    const now  = new Date();
+    const d7   = new Date(now); d7.setDate(now.getDate() - 7);
+    const d30  = new Date(now); d30.setMonth(now.getMonth() - 1);
+    const d60  = new Date(now); d60.setMonth(now.getMonth() - 2);
+
+    const sampleData = [
+      [
+        fmt(d60),
+        'งานอบรมพัฒนาบุคลากรประจำปี 2567',
+        'การอบรมเพื่อพัฒนาทักษะและศักยภาพของบุคลากร จัดขึ้น ณ ห้องประชุมใหญ่ชั้น 3',
+        'อบรม',
+        'https://drive.google.com/file/d/REPLACE_WITH_REAL_FILE_ID/view?usp=sharing',
+        'แสดง',
+      ],
+      [
+        fmt(d30),
+        'กิจกรรมวันสถาปนาหน่วยงาน ครบรอบ 20 ปี',
+        'พิธีเฉลิมฉลองครบรอบ 20 ปี พร้อมกิจกรรมสันทนาการและมอบรางวัลบุคลากรดีเด่น',
+        'พิธีการ',
+        'https://drive.google.com/file/d/REPLACE_WITH_REAL_FILE_ID/view?usp=sharing',
+        'แสดง',
+      ],
+      [
+        fmt(d7),
+        'กีฬาสีสัมพันธ์ประจำปี 2567',
+        'การแข่งขันกีฬาภายในเพื่อเสริมสร้างความสามัคคีและสุขภาพที่ดีของบุคลากรทุกฝ่าย',
+        'กีฬา',
+        'https://drive.google.com/file/d/REPLACE_WITH_REAL_FILE_ID/view?usp=sharing',
+        'แสดง',
+      ],
+      [
+        fmt(d7),
+        'โครงการบำเพ็ญประโยชน์ปลูกป่าชายเลน',
+        'กิจกรรม CSR ปลูกป่าชายเลนเพื่อฟื้นฟูระบบนิเวศ บริเวณอ่าวไทยฝั่งตะวันออก',
+        'จิตอาสา',
+        'https://drive.google.com/file/d/REPLACE_WITH_REAL_FILE_ID/view?usp=sharing',
+        'แสดง',
+      ],
+      [
+        fmt(now),
+        'ประชุมวิชาการประจำปี 2567',
+        'การนำเสนอผลงานวิชาการและแลกเปลี่ยนความรู้ระหว่างหน่วยงาน',
+        'วิชาการ',
+        'https://drive.google.com/file/d/REPLACE_WITH_REAL_FILE_ID/view?usp=sharing',
+        'แสดง',
+      ],
+      [
+        fmt(d30),
+        '[ตัวอย่าง] แถวที่ซ่อนจากหน้าเว็บ',
+        'แถวนี้มีสถานะ "ซ่อน" จะไม่ปรากฏในหน้าเว็บแกลเลอรี่',
+        'ทดสอบ',
+        '',
+        'ซ่อน',
+      ],
+    ];
+
+    sheet.getRange(2, 1, sampleData.length, headers.length).setValues(sampleData);
+
+    // สีแถวสลับ (Banding)
+    sheet.getRange(2, 1, sampleData.length, headers.length)
+      .applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREY);
+
+    // ── 4. ปรับขนาดคอลัมน์ ──────────────────────────────────
+    sheet.setColumnWidth(1, 110);  // A: Date
+    sheet.setColumnWidth(2, 280);  // B: Title
+    sheet.setColumnWidth(3, 340);  // C: Description
+    sheet.setColumnWidth(4, 100);  // D: Category
+    sheet.setColumnWidth(5, 430);  // E: ImageURL
+    sheet.setColumnWidth(6, 80);   // F: Status
+
+    // ── 5. ตรึงแถวหัวตาราง ──────────────────────────────────
+    sheet.setFrozenRows(1);
+
+    // ── 6. Data Validation — คอลัมน์ Status ─────────────────
+    const statusRule = SpreadsheetApp.newDataValidation()
+      .requireValueInList(['แสดง', 'ซ่อน'], true)
+      .setAllowInvalid(false)
+      .build();
+    sheet.getRange(2, 6, 100, 1).setDataValidation(statusRule);
+
+    // ── 7. ตรวจสอบ Google Drive Folder ──────────────────────
+    let folderName = '(ไม่สามารถเข้าถึงได้)';
+    try {
+      const folder = DriveApp.getFolderById(FOLDER_ID);
+      folderName   = folder.getName();
+    } catch (_) {}
+
+    // ── 8. บันทึกข้อมูล Web App URL ──────────────────────────
+    // หมายเหตุ: เก็บ URL ไว้ใน PropertiesService เพื่ออ้างอิงภายหลัง
+    PropertiesService.getScriptProperties().setProperties({
+      'SPREADSHEET_ID': SPREADSHEET_ID,
+      'FOLDER_ID':      FOLDER_ID,
+      'WEB_APP_URL':    'https://script.google.com/macros/s/AKfycbyPghqA070LklU4Y7hmirLaUtKDu6ii8li7B3bWzRiNTKUMds-Gbt1kufT67SCuOd0s/exec',
+      'SETUP_DATE':     new Date().toISOString(),
+    });
+
+    // ── 9. สรุปผล ────────────────────────────────────────────
+    const summary = [
+      '══════════════════════════════════════════',
+      '  ✅  setupSheets() สำเร็จ!',
+      '══════════════════════════════════════════',
+      `  📊 Spreadsheet ID : ${SPREADSHEET_ID}`,
+      `  📁 Drive Folder   : ${folderName}`,
+      `  📁 Folder ID      : ${FOLDER_ID}`,
+      `  📋 Sheet Name     : ${SHEET_NAME}`,
+      `  📝 Sample Rows    : ${sampleData.length} แถว`,
+      `  🔗 Web App URL    : https://script.google.com/macros/s/AKfyc...exec`,
+      '',
+      '  ⚠️  สิ่งที่ต้องทำต่อ:',
+      '  1. แทนที่ REPLACE_WITH_REAL_FILE_ID ด้วย File ID จริง',
+      '  2. อัปเดต APPS_SCRIPT_URL ใน gallery.html ให้ตรงกัน',
+      '  3. ตรวจสอบสิทธิ์ Google Drive Folder',
+      '══════════════════════════════════════════',
+    ].join('\n');
+
+    Logger.log(summary);
+
+    // แสดง popup ใน Spreadsheet UI
+    try {
+      SpreadsheetApp.getUi().alert(
+        '✅ setupSheets() สำเร็จ!\n\n' +
+        `• สร้างชีต "${SHEET_NAME}" พร้อมข้อมูลตัวอย่าง ${sampleData.length} แถว\n` +
+        '• เพิ่ม Data Validation คอลัมน์ Status แล้ว\n' +
+        '• บันทึก Web App URL ใน Script Properties แล้ว\n\n' +
+        '⚠️ กรุณาแทนที่ REPLACE_WITH_REAL_FILE_ID\nด้วยลิงก์รูป Google Drive จริงของคุณ'
+      );
+    } catch (_) { /* trigger ไม่มี UI — ดูผลจาก Execution Log แทน */ }
+
+  } catch (err) {
+    Logger.log('❌ setupSheets() ล้มเหลว: ' + err.message);
+    throw err;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  convertDriveLink — แปลง Share Link → Direct Image Link
+// ═══════════════════════════════════════════════════════════
+function convertDriveLink(url) {
+  if (!url) return '';
+  let match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+  match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+  return url;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  formatDate — แปลงวันที่เป็นรูปแบบไทย พ.ศ.
+// ═══════════════════════════════════════════════════════════
+function formatDate(value) {
+  if (!value) return '';
+  if (value instanceof Date) {
+    const m = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.',
+               'ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return `${value.getDate()} ${m[value.getMonth()]} ${value.getFullYear() + 543}`;
+  }
+  return String(value).trim();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ฟังก์ชันทดสอบ — รันใน Apps Script Editor
+// ═══════════════════════════════════════════════════════════
+function testGetGallery() {
+  const result = getGalleryData();
+  Logger.log(JSON.stringify(result, null, 2));
+}
+
+function testSetup() {
+  // ทดสอบเชื่อมต่อ Spreadsheet และ Folder
+  try {
+    const ss     = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const folder = DriveApp.getFolderById(FOLDER_ID);
+    Logger.log('✅ Spreadsheet: ' + ss.getName());
+    Logger.log('✅ Folder     : ' + folder.getName());
+    Logger.log('✅ Web App URL: https://script.google.com/macros/s/AKfycbyPghqA070LklU4Y7hmirLaUtKDu6ii8li7B3bWzRiNTKUMds-Gbt1kufT67SCuOd0s/exec');
+  } catch (err) {
+    Logger.log('❌ Error: ' + err.message);
+  }
+}
