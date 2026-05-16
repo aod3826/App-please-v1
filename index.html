@@ -3,557 +3,363 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>คลังรูปภาพกิจกรรม</title>
+  <title>คลังภาพกิจกรรม</title>
 
-  <!-- ═══ Fonts ═══ -->
+  <!-- Google Fonts: Prompt (หัว) + Sarabun (เนื้อหา) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet" />
 
-  <!-- ═══ Tailwind CSS ═══ -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            kanit:  ['Kanit',  'sans-serif'],
-            prompt: ['Prompt', 'sans-serif'],
+            prompt:  ['Prompt', 'sans-serif'],
+            sarabun: ['Sarabun', 'sans-serif'],
           },
           colors: {
             brand: {
-              50:  '#f0fdf4',
-              100: '#dcfce7',
-              400: '#4ade80',
-              500: '#22c55e',
-              600: '#16a34a',
-              700: '#15803d',
-              900: '#14532d',
+              50:  '#f0f9ff', 100: '#e0f2fe',
+              400: '#38bdf8', 500: '#0ea5e9',
+              600: '#0284c7', 700: '#0369a1',
+              800: '#075985', 900: '#0c4a6e',
             },
-            dark: {
-              950: '#030712',
-              900: '#0d1117',
-              800: '#161b22',
-              700: '#21262d',
-              600: '#30363d',
-              500: '#484f58',
-              400: '#6e7681',
-            }
+            gold: { 400: '#fbbf24', 500: '#f59e0b' },
           },
-          animation: {
-            'fade-up':    'fadeUp 0.5s ease both',
-            'fade-in':    'fadeIn 0.3s ease both',
-            'spin-slow':  'spin 1.5s linear infinite',
-            'pulse-slow': 'pulse 2.5s cubic-bezier(0.4,0,0.6,1) infinite',
-          },
-          keyframes: {
-            fadeUp: {
-              '0%':   { opacity: '0', transform: 'translateY(24px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
-            },
-            fadeIn: {
-              '0%':   { opacity: '0' },
-              '100%': { opacity: '1' },
-            },
-          }
-        }
-      }
+        },
+      },
     };
   </script>
 
   <style>
-    /* ── Global ── */
     *, *::before, *::after { box-sizing: border-box; }
-
-    :root {
-      --bg:           #0d1117;
-      --surface:      #161b22;
-      --border:       #30363d;
-      --text-primary: #e6edf3;
-      --text-muted:   #8b949e;
-      --accent:       #22c55e;
-      --accent-dim:   rgba(34,197,94,0.15);
-    }
-
     html { scroll-behavior: smooth; }
+    body { font-family: 'Sarabun', sans-serif; background: #f0f9ff; }
+    h1, h2, h3, .font-display { font-family: 'Prompt', sans-serif; }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text-primary);
-      font-family: 'Prompt', sans-serif;
-      min-height: 100vh;
+    /* Header */
+    .hero-gradient {
+      background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 45%, #0ea5e9 100%);
+      position: relative; overflow: hidden;
     }
-
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
-    /* ── Noise texture overlay ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
+    .hero-gradient::before {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/svg%3E");
     }
 
-    /* ── Glowing gradient mesh background ── */
-    .bg-mesh {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      background:
-        radial-gradient(ellipse 60% 40% at 15% 10%,  rgba(34,197,94,0.06) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 50% at 85% 80%,  rgba(16,185,129,0.05) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 30% at 50% 50%,  rgba(20,83,45,0.08)  0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    /* ── Header glow line ── */
-    .header-line {
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    }
-
-    /* ── Category pill ── */
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.375rem 1rem;
-      border-radius: 9999px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: 1px solid transparent;
-      white-space: nowrap;
-    }
-    .pill-inactive {
-      background: var(--surface);
-      border-color: var(--border);
-      color: var(--text-muted);
-    }
-    .pill-inactive:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .pill-active {
-      background: var(--accent-dim);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    /* ── Card ── */
+    /* Card */
     .gallery-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer; background: #fff;
+      border-radius: 16px; overflow: hidden;
     }
     .gallery-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--accent);
-      box-shadow: 0 8px 32px rgba(34,197,94,0.12), 0 2px 8px rgba(0,0,0,0.4);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px -8px rgba(3,105,161,0.25);
     }
-    .gallery-card:hover .card-img {
-      transform: scale(1.04);
-    }
+    .gallery-card:hover .card-img { transform: scale(1.07); }
 
-    /* ── Card image ── */
     .card-img-wrap {
+      overflow: hidden; height: 200px;
+      background: linear-gradient(135deg, #e0f2fe, #bae6fd);
       position: relative;
-      overflow: hidden;
-      aspect-ratio: 4/3;
-      background: var(--dark-800);
     }
     .card-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s ease;
-      display: block;
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease;
     }
-    .card-img-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--dark-700);
-      color: var(--text-muted);
+    .card-placeholder {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #94a3b8; font-size: 3rem;
     }
 
-    /* ── Overlay on hover ── */
-    .card-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      display: flex;
-      align-items: flex-end;
-      padding: 1rem;
-    }
-    .gallery-card:hover .card-overlay { opacity: 1; }
-
-    /* ── Category badge on card ── */
-    .cat-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(0,0,0,0.65);
-      backdrop-filter: blur(8px);
-      color: var(--accent);
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(34,197,94,0.35);
-      font-family: 'Kanit', sans-serif;
+    /* Badge */
+    .badge {
+      display: inline-block; padding: 2px 10px;
+      border-radius: 999px; font-size: 0.72rem; font-weight: 600;
     }
 
-    /* ── Staggered animation for cards ── */
-    .card-wrapper { animation: fadeUp 0.5s ease both; }
-    .card-wrapper:nth-child(1)  { animation-delay: 0.05s; }
-    .card-wrapper:nth-child(2)  { animation-delay: 0.10s; }
-    .card-wrapper:nth-child(3)  { animation-delay: 0.15s; }
-    .card-wrapper:nth-child(4)  { animation-delay: 0.20s; }
-    .card-wrapper:nth-child(5)  { animation-delay: 0.25s; }
-    .card-wrapper:nth-child(6)  { animation-delay: 0.30s; }
-    .card-wrapper:nth-child(7)  { animation-delay: 0.35s; }
-    .card-wrapper:nth-child(8)  { animation-delay: 0.40s; }
-    .card-wrapper:nth-child(9)  { animation-delay: 0.45s; }
-    .card-wrapper:nth-child(n+10) { animation-delay: 0.50s; }
+    /* Filter tabs */
+    .filter-tab {
+      padding: 6px 18px; border-radius: 999px; font-size: 0.85rem;
+      font-family: 'Prompt', sans-serif; cursor: pointer;
+      border: 2px solid transparent; transition: all 0.2s ease;
+      background: #fff; color: #475569; white-space: nowrap;
+    }
+    .filter-tab:hover  { border-color: #0ea5e9; color: #0369a1; }
+    .filter-tab.active { background: #0369a1; color: #fff; border-color: #0369a1; }
 
-    /* ── Lightbox ── */
-    #lightbox {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(10px);
-      animation: fadeIn 0.25s ease;
-    }
-    #lightbox.hidden { display: none; }
+    /* Search */
+    .search-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(14,165,233,0.3); }
 
-    .lightbox-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      max-width: 860px;
-      width: 100%;
-      max-height: 92vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.8);
-      animation: fadeUp 0.3s ease;
-    }
-
-    @media (min-width: 768px) {
-      .lightbox-card { flex-direction: row; max-height: 80vh; }
-      .lightbox-img-side { width: 55%; flex-shrink: 0; }
-      .lightbox-info-side { overflow-y: auto; }
-    }
-
-    .lightbox-img-side {
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      max-height: 50vh;
-    }
-    @media (min-width: 768px) {
-      .lightbox-img-side { max-height: none; }
-    }
-
-    .lightbox-img-side img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-    }
-    .lightbox-info-side {
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    /* ── Spinner ── */
+    /* Spinner */
     .spinner {
       width: 48px; height: 48px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      border: 5px solid #bae6fd; border-top-color: #0369a1;
+      border-radius: 50%; animation: spin 0.9s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Search ── */
-    .search-input {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-      border-radius: 8px;
-      padding: 0.5rem 1rem 0.5rem 2.5rem;
-      font-family: 'Prompt', sans-serif;
-      font-size: 0.875rem;
-      transition: border-color 0.2s;
-      width: 100%;
+    /* Card animation */
+    .card-reveal {
+      opacity: 0; transform: translateY(20px);
+      animation: slideUp 0.45s ease forwards;
     }
-    .search-input::placeholder { color: var(--text-muted); }
-    .search-input:focus { outline: none; border-color: var(--accent); }
+    @keyframes slideUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
 
-    /* ── Close button ── */
-    .close-btn {
-      position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      background: rgba(255,255,255,0.1);
-      border: none;
-      color: white;
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s;
-      font-size: 1rem;
+    /* Lightbox */
+    #lightbox {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 16px;
     }
-    .close-btn:hover { background: rgba(255,255,255,0.2); }
+    #lightbox.open { display: flex; animation: fadeIn 0.25s ease; }
 
-    /* ── Stats bar ── */
-    .stat-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--accent);
-      animation: pulse 2s ease infinite;
+    .lb-inner {
+      background: #fff; border-radius: 20px; overflow: hidden;
+      max-width: 860px; width: 100%; max-height: 92vh;
+      display: flex; flex-direction: column;
+      animation: slideUp 0.3s ease;
     }
+    @media (min-width: 768px) { .lb-inner { flex-direction: row; } }
+
+    .lb-img-wrap {
+      flex: 0 0 auto; width: 100%;
+      max-height: 52vw; background: #0c4a6e; overflow: hidden;
+    }
+    @media (min-width: 768px) {
+      .lb-img-wrap { width: 55%; max-height: unset; min-height: 400px; }
+    }
+    .lb-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lb-info { padding: 28px; overflow-y: auto; flex: 1; }
   </style>
 </head>
+<body class="min-h-screen">
 
-<body>
-  <div class="bg-mesh"></div>
-
-  <div class="relative z-10">
-
-    <!-- ══════════════════ HEADER ══════════════════ -->
-    <header class="sticky top-0 z-50 bg-dark-900/80 backdrop-blur-md border-b border-dark-700/60">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <!-- Logo icon -->
-          <div class="w-9 h-9 rounded-lg bg-brand-700/40 border border-brand-600/30 flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-            </svg>
-          </div>
-          <div>
-            <h1 class="font-kanit font-semibold text-white text-base sm:text-lg leading-tight">คลังรูปภาพกิจกรรม</h1>
-            <p class="text-xs text-dark-400 font-prompt hidden sm:block">Photo Gallery System</p>
-          </div>
-        </div>
-        <!-- Stats -->
-        <div id="stats-bar" class="hidden items-center gap-2 text-xs text-dark-400 font-prompt">
-          <div class="stat-dot"></div>
-          <span id="stats-text">กำลังโหลด...</span>
-        </div>
+  <!-- ══ HEADER ══════════════════════════════════════════════ -->
+  <header class="hero-gradient text-white py-12 md:py-16 px-4 text-center relative">
+    <div class="relative z-10 max-w-3xl mx-auto">
+      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm mb-5 backdrop-blur-sm">
+        <span class="text-yellow-300">✦</span>
+        <span class="font-sarabun tracking-wide">ระบบคลังรูปภาพกิจกรรม</span>
       </div>
-      <div class="header-line"></div>
-    </header>
-
-    <!-- ══════════════════ HERO ══════════════════ -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-8 text-center">
-      <p class="text-brand-400 text-xs font-kanit font-semibold tracking-[0.2em] uppercase mb-3 animate-fade-in" style="animation-delay:0.1s">Activity Photo Archive</p>
-      <h2 class="font-kanit font-bold text-3xl sm:text-4xl md:text-5xl text-white mb-3 animate-fade-up" style="animation-delay:0.15s">
-        ภาพกิจกรรม<span class="text-brand-400">ประจำปี</span>
-      </h2>
-      <p class="font-prompt text-dark-400 text-sm sm:text-base max-w-xl mx-auto animate-fade-up" style="animation-delay:0.2s">
-        รวบรวมภาพบันทึกกิจกรรม โครงการ และงานสำคัญต่าง ๆ ของหน่วยงาน
+      <h1 class="text-3xl md:text-5xl font-bold mb-3 font-prompt leading-tight drop-shadow-lg">
+        ภาพกิจกรรมของเรา
+      </h1>
+      <p class="text-blue-100 font-sarabun text-base md:text-lg font-light max-w-xl mx-auto">
+        รวมภาพบรรยากาศกิจกรรมสำคัญ พร้อมข้อมูลรายละเอียด
       </p>
-    </section>
 
-    <!-- ══════════════════ CONTROLS ══════════════════ -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-8 animate-fade-up" style="animation-delay:0.25s">
-      <div class="bg-dark-800/60 border border-dark-700/60 rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-
-        <!-- Search -->
-        <div class="relative flex-1 w-full sm:max-w-xs">
-          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-          </svg>
-          <input id="search-input" class="search-input" type="text" placeholder="ค้นหากิจกรรม..." />
+      <!-- Stats -->
+      <div id="stats" class="flex justify-center gap-6 mt-8 hidden">
+        <div class="bg-white/10 rounded-xl px-5 py-3 backdrop-blur-sm border border-white/20 text-center">
+          <div id="stat-total" class="text-2xl font-bold font-prompt">—</div>
+          <div class="text-xs text-blue-100 mt-0.5">รูปทั้งหมด</div>
         </div>
-
-        <!-- Category pills -->
-        <div id="category-pills" class="flex flex-wrap gap-2">
-          <button class="pill pill-active" data-cat="__all__">ทั้งหมด</button>
+        <div class="bg-white/10 rounded-xl px-5 py-3 backdrop-blur-sm border border-white/20 text-center">
+          <div id="stat-cat" class="text-2xl font-bold font-prompt">—</div>
+          <div class="text-xs text-blue-100 mt-0.5">หมวดหมู่</div>
         </div>
       </div>
     </div>
+  </header>
 
-    <!-- ══════════════════ GALLERY GRID ══════════════════ -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
+  <!-- ══ FILTER & SEARCH BAR ══════════════════════════════════ -->
+  <div class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row gap-3 items-center">
 
-      <!-- Loading state -->
-      <div id="loading-state" class="flex flex-col items-center justify-center py-24 gap-4">
-        <div class="spinner"></div>
-        <p class="font-prompt text-dark-400 text-sm animate-pulse-slow">กำลังโหลดรูปภาพ...</p>
+      <!-- Search -->
+      <div class="relative w-full sm:w-72 flex-shrink-0">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">🔍</span>
+        <input id="search" type="text" placeholder="ค้นหากิจกรรม..."
+          class="search-input w-full pl-9 pr-4 py-2 rounded-full border border-slate-200 bg-slate-50 text-sm font-sarabun transition-all" />
       </div>
 
-      <!-- Error state -->
-      <div id="error-state" class="hidden flex-col items-center justify-center py-24 gap-4 text-center">
-        <div class="w-16 h-16 rounded-2xl bg-red-900/20 border border-red-800/40 flex items-center justify-center">
-          <svg class="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-          </svg>
+      <!-- Category filters — scrollable on mobile -->
+      <div class="w-full overflow-x-auto pb-1 sm:pb-0">
+        <div id="filter-tabs" class="flex gap-2 w-max sm:w-auto sm:flex-wrap">
+          <!-- ฉีดจาก JS -->
         </div>
-        <p class="font-kanit font-semibold text-white text-lg">ไม่สามารถโหลดข้อมูลได้</p>
-        <p id="error-msg" class="font-prompt text-dark-400 text-sm max-w-md"></p>
-        <button onclick="loadGallery()" class="mt-2 px-5 py-2 rounded-lg bg-brand-700/30 border border-brand-600/40 text-brand-400 font-prompt text-sm hover:bg-brand-700/50 transition-colors">ลองใหม่อีกครั้ง</button>
-      </div>
-
-      <!-- Empty state -->
-      <div id="empty-state" class="hidden flex-col items-center justify-center py-24 gap-4 text-center">
-        <div class="w-16 h-16 rounded-2xl bg-dark-800 border border-dark-700 flex items-center justify-center">
-          <svg class="w-8 h-8 text-dark-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-          </svg>
-        </div>
-        <p class="font-kanit font-semibold text-white text-lg">ไม่พบรูปภาพ</p>
-        <p class="font-prompt text-dark-400 text-sm">ลองเปลี่ยนคำค้นหาหรือหมวดหมู่</p>
-      </div>
-
-      <!-- Grid -->
-      <div id="gallery-grid" class="hidden grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
-
-    </main>
-  </div>
-
-  <!-- ══════════════════ LIGHTBOX ══════════════════ -->
-  <div id="lightbox" class="hidden" role="dialog" aria-modal="true">
-    <div class="lightbox-card relative" id="lightbox-card">
-      <button class="close-btn" id="lightbox-close" aria-label="ปิด">✕</button>
-
-      <!-- Image side -->
-      <div class="lightbox-img-side" id="lb-img-wrap">
-        <img id="lb-img" src="" alt="" />
-      </div>
-
-      <!-- Info side -->
-      <div class="lightbox-info-side">
-        <div class="flex items-center gap-2 flex-wrap">
-          <span id="lb-cat" class="text-xs font-kanit font-semibold px-3 py-1 rounded-full bg-brand-900/60 border border-brand-700/40 text-brand-400"></span>
-          <span id="lb-date" class="text-xs font-prompt text-dark-400"></span>
-        </div>
-        <h3 id="lb-title" class="font-kanit font-semibold text-white text-xl leading-snug"></h3>
-        <p id="lb-desc" class="font-prompt text-sm text-dark-400 leading-relaxed"></p>
-
-        <!-- Navigation -->
-        <div class="flex gap-3 mt-auto pt-4 border-t border-dark-700">
-          <button id="lb-prev" class="flex-1 py-2 px-4 rounded-lg bg-dark-700 hover:bg-dark-600 text-sm font-prompt text-white transition-colors flex items-center justify-center gap-2">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-            </svg>ก่อนหน้า
-          </button>
-          <button id="lb-next" class="flex-1 py-2 px-4 rounded-lg bg-dark-700 hover:bg-dark-600 text-sm font-prompt text-white transition-colors flex items-center justify-center gap-2">
-            ถัดไป<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-            </svg>
-          </button>
-        </div>
-        <p id="lb-counter" class="text-center text-xs text-dark-400 font-prompt"></p>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════ FOOTER ══════════════════ -->
-  <footer class="relative z-10 border-t border-dark-700/50 py-6 text-center">
-    <p class="font-prompt text-xs text-dark-500">Gallery System • Powered by Google Apps Script</p>
+  <!-- ══ MAIN GALLERY ═════════════════════════════════════════ -->
+  <main class="max-w-6xl mx-auto px-4 py-8">
+
+    <!-- Loading -->
+    <div id="loading" class="flex flex-col items-center justify-center py-24 gap-4">
+      <div class="spinner"></div>
+      <p class="text-slate-500 font-sarabun">กำลังโหลดข้อมูล...</p>
+    </div>
+
+    <!-- Error -->
+    <div id="error-state" class="hidden flex flex-col items-center justify-center py-24 gap-3 text-center">
+      <div class="text-5xl">⚠️</div>
+      <h3 class="text-xl font-semibold font-prompt text-slate-700">เกิดข้อผิดพลาด</h3>
+      <p id="error-msg" class="text-slate-500 font-sarabun text-sm max-w-md"></p>
+      <button onclick="loadGallery()"
+        class="mt-4 px-6 py-2 bg-blue-700 text-white rounded-full font-prompt text-sm hover:bg-blue-800 transition-colors">
+        ลองใหม่
+      </button>
+    </div>
+
+    <!-- Empty -->
+    <div id="empty-state" class="hidden flex flex-col items-center justify-center py-24 gap-3 text-center">
+      <div class="text-6xl">🖼️</div>
+      <h3 class="text-xl font-semibold font-prompt text-slate-600">ไม่พบข้อมูลภาพกิจกรรม</h3>
+      <p class="text-slate-400 font-sarabun text-sm">ลองเปลี่ยนตัวกรองหรือคำค้นหาใหม่</p>
+    </div>
+
+    <!-- Grid -->
+    <div id="gallery-grid"
+      class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+    </div>
+
+    <!-- Result count -->
+    <div id="result-count" class="hidden text-center mt-8 text-sm text-slate-400 font-sarabun"></div>
+  </main>
+
+  <!-- ══ FOOTER ════════════════════════════════════════════════ -->
+  <footer class="text-center py-8 text-xs text-slate-400 font-sarabun border-t border-slate-200 mt-4">
+    <p>ระบบคลังภาพกิจกรรม &copy; <span id="year"></span> &nbsp;|&nbsp; ข้อมูลจาก Google Sheets</p>
   </footer>
 
+  <!-- ══ LIGHTBOX MODAL ════════════════════════════════════════ -->
+  <div id="lightbox" role="dialog" aria-modal="true" onclick="closeLightbox(event)">
+    <div class="lb-inner" onclick="event.stopPropagation()">
 
-  <!-- ══════════════════ JAVASCRIPT ══════════════════ -->
+      <div class="lb-img-wrap">
+        <img id="lb-img" src="" alt="" class="lb-img" />
+      </div>
+
+      <div class="lb-info">
+        <div class="flex justify-between items-start gap-2 mb-4">
+          <div>
+            <span id="lb-badge" class="badge bg-blue-100 text-blue-700 mb-2"></span>
+            <h2 id="lb-title" class="text-xl font-bold font-prompt text-slate-800 leading-snug mt-1"></h2>
+          </div>
+          <button onclick="closeLightbox()"
+            class="text-slate-400 hover:text-slate-600 text-3xl leading-none flex-shrink-0 transition-colors"
+            aria-label="ปิด">×</button>
+        </div>
+
+        <div class="flex items-center gap-2 text-sm text-slate-500 mb-4">
+          <span>📅</span>
+          <span id="lb-date" class="font-sarabun"></span>
+        </div>
+
+        <p id="lb-desc" class="text-slate-600 font-sarabun text-sm leading-relaxed"></p>
+
+        <hr class="my-5 border-slate-100" />
+
+        <a id="lb-link" href="#" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-sarabun transition-colors">
+          <span>🔗</span> ดูรูปต้นฉบับใน Google Drive
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ JAVASCRIPT ════════════════════════════════════════════ -->
   <script>
-    // ╔══════════════════════════════════════════════╗
-    // ║  ⚙️  CONFIG — แก้ไขค่านี้เพียงจุดเดียว       ║
-    // ╚══════════════════════════════════════════════╝
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyPghqA070LklU4Y7hmirLaUtKDu6ii8li7B3bWzRiNTKUMds-Gbt1kufT67SCuOd0s/exec";
-    //                                                ↑ วางลิงก์ Web App ของคุณตรงนี้
+    // ═══════════════════════════════════════════════════════════
+    //  ⚙️ CONFIG — Web App URL จาก Google Apps Script
+    // ═══════════════════════════════════════════════════════════
+    const APPS_SCRIPT_URL =
+      'https://script.google.com/macros/s/AKfycbyPghqA070LklU4Y7hmirLaUtKDu6ii8li7B3bWzRiNTKUMds-Gbt1kufT67SCuOd0s/exec';
 
-    // ── State ──────────────────────────────────────
-    let allItems        = [];   // ข้อมูลทั้งหมดจาก GAS
-    let filteredItems   = [];   // หลังกรอง
-    let currentCat      = "__all__";
-    let currentSearch   = "";
-    let lightboxIndex   = 0;
+    // ═══════════════════════════════════════════════════════════
+    //  State
+    // ═══════════════════════════════════════════════════════════
+    let allItems     = [];
+    let activeFilter = 'ทั้งหมด';
+    let searchQuery  = '';
 
-    // ── DOM refs ───────────────────────────────────
-    const $grid         = document.getElementById("gallery-grid");
-    const $loading      = document.getElementById("loading-state");
-    const $error        = document.getElementById("error-state");
-    const $errorMsg     = document.getElementById("error-msg");
-    const $empty        = document.getElementById("empty-state");
-    const $pills        = document.getElementById("category-pills");
-    const $search       = document.getElementById("search-input");
-    const $statsBar     = document.getElementById("stats-bar");
-    const $statsText    = document.getElementById("stats-text");
-    const $lightbox     = document.getElementById("lightbox");
-    const $lbImg        = document.getElementById("lb-img");
-    const $lbTitle      = document.getElementById("lb-title");
-    const $lbDesc       = document.getElementById("lb-desc");
-    const $lbCat        = document.getElementById("lb-cat");
-    const $lbDate       = document.getElementById("lb-date");
-    const $lbCounter    = document.getElementById("lb-counter");
+    // สีหมวดหมู่ (วนซ้ำอัตโนมัติ)
+    const CAT_COLORS = [
+      'bg-violet-100 text-violet-700',
+      'bg-emerald-100 text-emerald-700',
+      'bg-amber-100 text-amber-700',
+      'bg-rose-100 text-rose-700',
+      'bg-cyan-100 text-cyan-700',
+      'bg-indigo-100 text-indigo-700',
+      'bg-teal-100 text-teal-700',
+      'bg-orange-100 text-orange-700',
+    ];
+    const catColorMap = {};
 
+    function getCatColor(cat) {
+      if (!catColorMap[cat]) {
+        catColorMap[cat] = CAT_COLORS[Object.keys(catColorMap).length % CAT_COLORS.length];
+      }
+      return catColorMap[cat];
+    }
 
-    // ════════════════════════════════════════════════
-    //  DATA LOADING
-    // ════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
+    //  loadGallery — ดึงข้อมูลจาก Apps Script
+    // ═══════════════════════════════════════════════════════════
     async function loadGallery() {
-      showState("loading");
+      showState('loading');
       try {
-        // ── ตรวจสอบว่าผู้ใช้ยังไม่ได้ตั้งค่า URL ──
-        if (GAS_URL.includes("YOUR_DEPLOYMENT_ID")) {
-          throw new Error("กรุณาตั้งค่า GAS_URL ในไฟล์ index.html ก่อนใช้งาน\n(แทนที่ YOUR_DEPLOYMENT_ID ด้วย Web App URL จริง)");
-        }
-
-        const res  = await fetch(GAS_URL, { redirect: "follow" });
-        if (!res.ok) throw new Error("HTTP " + res.status + " — ไม่สามารถเชื่อมต่อ GAS ได้");
-
+        const url = `${APPS_SCRIPT_URL}?action=getGallery&t=${Date.now()}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status} — กรุณาตรวจสอบ Web App URL`);
         const json = await res.json();
-        if (json.status !== "success") throw new Error(json.message || "ข้อมูลไม่ถูกต้อง");
+        if (!json.success) throw new Error(json.error || 'Server ส่งข้อมูลผิดพลาด');
 
         allItems = json.data || [];
-        buildCategoryPills();
-        applyFilters();
-
-        $statsBar.classList.remove("hidden");
-        $statsBar.classList.add("flex");
-        updateStats();
+        buildFilters(['ทั้งหมด', ...(json.categories || [])]);
+        updateStats(json.total, (json.categories || []).length);
+        renderGallery();
 
       } catch (err) {
-        showState("error");
-        $errorMsg.textContent = err.message;
-        console.error("[Gallery]", err);
+        console.error(err);
+        showError(err.message);
       }
     }
 
-    // ════════════════════════════════════════════════
-    //  FILTER & RENDER
-    // ════════════════════════════════════════════════
-    function applyFilters() {
-      const q = currentSearch.toLowerCase().trim();
-      filteredItems = allItems.filter(item => {
-        const matchCat    = currentCat === "__all__" || item.category === currentCat;
+    // ═══════════════════════════════════════════════════════════
+    //  buildFilters — สร้างปุ่มกรองหมวดหมู่
+    // ═══════════════════════════════════════════════════════════
+    function buildFilters(cats) {
+      const wrap = document.getElementById('filter-tabs');
+      wrap.innerHTML = '';
+      cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `filter-tab${cat === activeFilter ? ' active' : ''}`;
+        btn.textContent = cat;
+        btn.onclick = () => { activeFilter = cat; refreshTabs(); renderGallery(); };
+        wrap.appendChild(btn);
+      });
+    }
+
+    function refreshTabs() {
+      document.querySelectorAll('.filter-tab').forEach(b => {
+        b.classList.toggle('active', b.textContent === activeFilter);
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  renderGallery — แสดงการ์ด
+    // ═══════════════════════════════════════════════════════════
+    function renderGallery() {
+      const grid = document.getElementById('gallery-grid');
+      grid.innerHTML = '';
+
+      const q = searchQuery.toLowerCase();
+      const filtered = allItems.filter(item => {
+        const matchCat    = activeFilter === 'ทั้งหมด' || item.category === activeFilter;
         const matchSearch = !q ||
           item.title.toLowerCase().includes(q) ||
           item.description.toLowerCase().includes(q) ||
@@ -561,175 +367,124 @@
         return matchCat && matchSearch;
       });
 
-      renderGrid();
-      updateStats();
+      if (filtered.length === 0) { showState('empty'); return; }
+
+      showState('grid');
+      filtered.forEach((item, i) => grid.appendChild(createCard(item, i)));
+
+      const rc = document.getElementById('result-count');
+      rc.textContent = `แสดง ${filtered.length} รายการ จากทั้งหมด ${allItems.length} รายการ`;
+      rc.classList.remove('hidden');
     }
 
-    function renderGrid() {
-      $grid.innerHTML = "";
-      if (filteredItems.length === 0) { showState("empty"); return; }
-      showState("grid");
+    function createCard(item, delay) {
+      const div = document.createElement('div');
+      div.className = 'gallery-card card-reveal shadow-md';
+      div.style.animationDelay = `${delay * 55}ms`;
+      div.onclick = () => openLightbox(item);
 
-      filteredItems.forEach((item, index) => {
-        const card = document.createElement("div");
-        card.className = "card-wrapper";
-        card.innerHTML = buildCardHTML(item, index);
-        card.querySelector(".gallery-card").addEventListener("click", () => openLightbox(index));
-        $grid.appendChild(card);
+      const color = getCatColor(item.category);
+      div.innerHTML = `
+        <div class="card-img-wrap">
+          ${item.imageUrl
+            ? `<img class="card-img" src="${esc(item.imageUrl)}" alt="${esc(item.title)}"
+                    loading="lazy"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+               <div class="card-placeholder" style="display:none">🖼️</div>`
+            : `<div class="card-placeholder">🖼️</div>`}
+        </div>
+        <div class="p-4">
+          <span class="badge ${color} mb-2">${esc(item.category)}</span>
+          <h3 class="font-semibold font-prompt text-slate-800 text-sm leading-snug line-clamp-2 mb-1">
+            ${esc(item.title)}
+          </h3>
+          ${item.date ? `<p class="text-xs text-slate-400 font-sarabun">📅 ${esc(item.date)}</p>` : ''}
+          ${item.description
+            ? `<p class="text-xs text-slate-500 font-sarabun mt-2 line-clamp-2 leading-relaxed">
+                 ${esc(item.description)}
+               </p>`
+            : ''}
+        </div>
+      `;
+      return div;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  Lightbox
+    // ═══════════════════════════════════════════════════════════
+    function openLightbox(item) {
+      document.getElementById('lb-img').src          = item.imageUrl || '';
+      document.getElementById('lb-img').alt          = item.title;
+      document.getElementById('lb-title').textContent = item.title;
+      document.getElementById('lb-date').textContent  = item.date || '—';
+      document.getElementById('lb-desc').textContent  = item.description || 'ไม่มีรายละเอียด';
+      document.getElementById('lb-badge').textContent = item.category;
+      document.getElementById('lb-badge').className   = `badge ${getCatColor(item.category)} mb-2`;
+      document.getElementById('lb-link').href         = item.imageUrl || '#';
+
+      document.getElementById('lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox(e) {
+      if (e && e.currentTarget !== e.target) return;
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  UI State Helpers
+    // ═══════════════════════════════════════════════════════════
+    function showState(state) {
+      ['loading','error-state','empty-state','gallery-grid','result-count'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
       });
+      if (state === 'loading') document.getElementById('loading').classList.remove('hidden');
+      if (state === 'error')   document.getElementById('error-state').classList.remove('hidden');
+      if (state === 'empty')   document.getElementById('empty-state').classList.remove('hidden');
+      if (state === 'grid')    document.getElementById('gallery-grid').classList.remove('hidden');
     }
 
-    function buildCardHTML(item, index) {
-      const placeholder = `
-        <div class="card-img-placeholder">
-          <svg class="w-10 h-10 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5M21 6.75v10.5A2.25 2.25 0 0 1 18.75 19.5H5.25A2.25 2.25 0 0 1 3 17.25V6.75A2.25 2.25 0 0 1 5.25 4.5h13.5A2.25 2.25 0 0 1 21 6.75Z" />
-          </svg>
-        </div>`;
-
-      return `
-        <div class="gallery-card group">
-          <div class="card-img-wrap">
-            ${item.imageUrl
-              ? `<img class="card-img" src="${escHtml(item.imageUrl)}"
-                   alt="${escHtml(item.title)}"
-                   loading="lazy"
-                   onerror="this.parentElement.innerHTML='${placeholder.replace(/"/g,"'")}'" />`
-              : placeholder}
-            ${item.category ? `<span class="cat-badge">${escHtml(item.category)}</span>` : ""}
-            <div class="card-overlay">
-              <span class="text-white text-xs font-prompt opacity-90 flex items-center gap-1">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197M10.5 7.5v6m3-3h-6m13.5 3A7.5 7.5 0 1 1 3 10.5a7.5 7.5 0 0 1 18 0Z" />
-                </svg>ดูรายละเอียด
-              </span>
-            </div>
-          </div>
-          <div class="p-3">
-            <p class="font-kanit font-medium text-white text-sm leading-snug line-clamp-2 mb-1">${escHtml(item.title)}</p>
-            ${item.date ? `<p class="font-prompt text-xs text-dark-400">${escHtml(item.date)}</p>` : ""}
-          </div>
-        </div>`;
+    function showError(msg) {
+      showState('error');
+      document.getElementById('error-msg').textContent = msg;
     }
 
-    // ════════════════════════════════════════════════
-    //  CATEGORY PILLS
-    // ════════════════════════════════════════════════
-    function buildCategoryPills() {
-      const cats = [...new Set(allItems.map(i => i.category).filter(Boolean))].sort();
-      $pills.innerHTML = `<button class="pill pill-active" data-cat="__all__">ทั้งหมด (${allItems.length})</button>`;
-      cats.forEach(cat => {
-        const count = allItems.filter(i => i.category === cat).length;
-        const btn   = document.createElement("button");
-        btn.className   = "pill pill-inactive";
-        btn.dataset.cat = cat;
-        btn.textContent = `${cat} (${count})`;
-        $pills.appendChild(btn);
-      });
+    function updateStats(total, cats) {
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-cat').textContent   = cats;
+      document.getElementById('stats').classList.remove('hidden');
     }
 
-    $pills.addEventListener("click", e => {
-      const btn = e.target.closest("[data-cat]");
-      if (!btn) return;
-      currentCat = btn.dataset.cat;
-      $pills.querySelectorAll(".pill").forEach(p => {
-        p.className = p.dataset.cat === currentCat ? "pill pill-active" : "pill pill-inactive";
-      });
-      applyFilters();
-    });
+    // Escape HTML
+    function esc(s) {
+      if (!s) return '';
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
-    // ════════════════════════════════════════════════
-    //  SEARCH
-    // ════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
+    //  Events
+    // ═══════════════════════════════════════════════════════════
     let searchTimer;
-    $search.addEventListener("input", () => {
+    document.getElementById('search').addEventListener('input', e => {
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
-        currentSearch = $search.value;
-        applyFilters();
-      }, 250);
+        searchQuery = e.target.value.trim();
+        renderGallery();
+      }, 300);
     });
 
-    // ════════════════════════════════════════════════
-    //  LIGHTBOX
-    // ════════════════════════════════════════════════
-    function openLightbox(index) {
-      lightboxIndex = index;
-      renderLightbox();
-      $lightbox.classList.remove("hidden");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeLightbox() {
-      $lightbox.classList.add("hidden");
-      document.body.style.overflow = "";
-      $lbImg.src = "";
-    }
-
-    function renderLightbox() {
-      const item = filteredItems[lightboxIndex];
-      if (!item) return;
-      $lbImg.src           = item.imageUrl || "";
-      $lbImg.alt           = item.title;
-      $lbTitle.textContent = item.title;
-      $lbDesc.textContent  = item.description || "ไม่มีคำอธิบาย";
-      $lbCat.textContent   = item.category || "";
-      $lbDate.textContent  = item.date || "";
-      $lbCounter.textContent = `${lightboxIndex + 1} / ${filteredItems.length}`;
-
-      document.getElementById("lb-prev").disabled = lightboxIndex === 0;
-      document.getElementById("lb-next").disabled = lightboxIndex === filteredItems.length - 1;
-      document.getElementById("lb-prev").style.opacity = lightboxIndex === 0 ? "0.4" : "1";
-      document.getElementById("lb-next").style.opacity = lightboxIndex === filteredItems.length - 1 ? "0.4" : "1";
-    }
-
-    document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
-    document.getElementById("lb-prev").addEventListener("click", () => { if (lightboxIndex > 0) { lightboxIndex--; renderLightbox(); } });
-    document.getElementById("lb-next").addEventListener("click", () => { if (lightboxIndex < filteredItems.length - 1) { lightboxIndex++; renderLightbox(); } });
-
-    $lightbox.addEventListener("click", e => { if (e.target === $lightbox) closeLightbox(); });
-
-    document.addEventListener("keydown", e => {
-      if ($lightbox.classList.contains("hidden")) return;
-      if (e.key === "Escape")      closeLightbox();
-      if (e.key === "ArrowLeft")   { if (lightboxIndex > 0) { lightboxIndex--; renderLightbox(); } }
-      if (e.key === "ArrowRight")  { if (lightboxIndex < filteredItems.length - 1) { lightboxIndex++; renderLightbox(); } }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('lightbox').classList.remove('open');
+        document.body.style.overflow = '';
+      }
     });
 
-    // ════════════════════════════════════════════════
-    //  HELPERS
-    // ════════════════════════════════════════════════
-    function showState(state) {
-      $loading.classList.add("hidden");    $loading.classList.remove("flex");
-      $error.classList.add("hidden");      $error.classList.remove("flex");
-      $empty.classList.add("hidden");      $empty.classList.remove("flex");
-      $grid.classList.add("hidden");       $grid.classList.remove("grid");
-
-      if (state === "loading") { $loading.classList.remove("hidden"); $loading.classList.add("flex"); }
-      if (state === "error")   { $error.classList.remove("hidden");   $error.classList.add("flex"); }
-      if (state === "empty")   { $empty.classList.remove("hidden");   $empty.classList.add("flex"); }
-      if (state === "grid")    { $grid.classList.remove("hidden");    $grid.classList.add("grid"); }
-    }
-
-    function updateStats() {
-      const total    = allItems.length;
-      const showing  = filteredItems.length;
-      $statsText.textContent = showing === total
-        ? `แสดงทั้งหมด ${total} ภาพ`
-        : `แสดง ${showing} จาก ${total} ภาพ`;
-    }
-
-    function escHtml(str) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    // ════════════════════════════════════════════════
-    //  INIT
-    // ════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════
+    //  Init
+    // ═══════════════════════════════════════════════════════════
+    document.getElementById('year').textContent = new Date().getFullYear();
     loadGallery();
   </script>
 </body>
