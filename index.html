@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>คลังภาพกิจกรรม</title>
+  <title>คลังภาพกิจกรรม — Activity Gallery</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700;800&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -27,6 +27,8 @@
       --sky:    #0ea5e9;
       --light:  #f0f9ff;
       --gold:   #f59e0b;
+      --danger: #dc2626;
+      --success:#059669;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,7 +36,6 @@
     body { font-family: 'Sarabun', sans-serif; background: var(--light); min-height: 100vh; }
     h1,h2,h3,h4 { font-family: 'Prompt', sans-serif; }
 
-    /* ── Hero ── */
     .hero {
       background: linear-gradient(140deg, var(--navy) 0%, var(--blue) 55%, var(--sky) 100%);
       position: relative; overflow: hidden;
@@ -50,7 +51,6 @@
       clip-path: ellipse(55% 100% at 50% 100%);
     }
 
-    /* ── Stat card ── */
     .stat-card {
       background: rgba(255,255,255,0.12);
       border: 1px solid rgba(255,255,255,0.2);
@@ -58,7 +58,6 @@
       border-radius: 14px; padding: 12px 20px; text-align: center;
     }
 
-    /* ── Sticky nav ── */
     .sticky-nav {
       position: sticky; top: 0; z-index: 100;
       background: rgba(255,255,255,0.92);
@@ -67,7 +66,6 @@
       box-shadow: 0 1px 12px rgba(3,105,161,0.08);
     }
 
-    /* ── Filter tab ── */
     .ftab {
       padding: 5px 16px; border-radius: 99px;
       font-family: 'Prompt', sans-serif; font-size: 0.82rem;
@@ -78,7 +76,6 @@
     .ftab:hover { border-color: var(--sky); color: var(--blue); }
     .ftab.on { background: var(--blue); color: #fff; border-color: var(--blue); }
 
-    /* ── Search ── */
     .search-box {
       border: 1.5px solid #bae6fd; border-radius: 99px;
       padding: 7px 16px 7px 36px;
@@ -87,26 +84,41 @@
     }
     .search-box:focus { outline: none; border-color: var(--sky); box-shadow: 0 0 0 3px rgba(14,165,233,0.15); }
 
-    /* ── Gallery card ── */
     .gcard {
       background: #fff; border-radius: 16px; overflow: hidden;
       box-shadow: 0 2px 10px rgba(3,105,161,0.08);
       cursor: pointer; transition: transform 0.28s ease, box-shadow 0.28s ease;
+      position: relative;
     }
     .gcard:hover { transform: translateY(-5px); box-shadow: 0 16px 32px rgba(3,105,161,0.18); }
     .gcard:hover .cimg { transform: scale(1.06); }
+    .gcard:hover .card-actions { opacity: 1; pointer-events: auto; }
 
     .cimg-wrap { height: 195px; overflow: hidden; background: linear-gradient(135deg,#e0f2fe,#bae6fd); position: relative; }
     .cimg { width: 100%; height: 100%; object-fit: cover; transition: transform 0.45s ease; display: block; }
     .cimg-ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #94a3b8; }
 
-    /* ── Badge ── */
+    .card-actions {
+      position: absolute; top: 8px; right: 8px;
+      display: flex; gap: 4px; opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .card-action-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; transition: all 0.15s ease;
+      backdrop-filter: blur(8px);
+    }
+    .card-action-btn.edit { background: rgba(255,255,255,0.9); color: var(--blue); }
+    .card-action-btn.edit:hover { background: var(--blue); color: #fff; }
+    .card-action-btn.delete { background: rgba(255,255,255,0.9); color: var(--danger); }
+    .card-action-btn.delete:hover { background: var(--danger); color: #fff; }
+
     .badge {
       display: inline-block; padding: 2px 10px;
       border-radius: 99px; font-size: 0.7rem; font-weight: 600; font-family: 'Prompt', sans-serif;
     }
 
-    /* ── FAB (Add button) ── */
     .fab {
       position: fixed; bottom: 28px; right: 28px; z-index: 200;
       width: 58px; height: 58px; border-radius: 50%;
@@ -127,7 +139,6 @@
     }
     .fab:hover ~ .fab-label { opacity: 1; }
 
-    /* ── Modal backdrop ── */
     .modal-bg {
       display: none; position: fixed; inset: 0; z-index: 300;
       background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
@@ -137,7 +148,6 @@
     @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideup { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ── Add Activity Modal ── */
     .add-modal {
       background: #fff; border-radius: 22px; width: 100%; max-width: 560px;
       max-height: 92vh; overflow-y: auto;
@@ -151,7 +161,6 @@
     }
     .modal-body { padding: 24px 28px 28px; }
 
-    /* ── Form elements ── */
     .form-label {
       display: block; font-family: 'Prompt', sans-serif; font-size: 0.82rem;
       font-weight: 600; color: #334155; margin-bottom: 6px;
@@ -170,7 +179,6 @@
     }
     .form-textarea { resize: vertical; min-height: 80px; }
 
-    /* ── Drop zone ── */
     .drop-zone {
       border: 2px dashed #94a3b8; border-radius: 14px;
       padding: 28px 16px; text-align: center; cursor: pointer;
@@ -188,7 +196,6 @@
       border-radius: 10px; margin-top: 12px; display: none;
     }
 
-    /* ── Progress bar ── */
     .prog-bar {
       height: 6px; border-radius: 99px; background: #e2e8f0;
       overflow: hidden; margin-top: 10px; display: none;
@@ -199,7 +206,6 @@
       transition: width 0.3s ease;
     }
 
-    /* ── Btn ── */
     .btn-primary {
       background: linear-gradient(135deg, var(--blue), var(--sky));
       color: #fff; border: none; border-radius: 10px;
@@ -216,8 +222,15 @@
       cursor: pointer; transition: background 0.15s;
     }
     .btn-cancel:hover { background: #e2e8f0; }
+    .btn-danger {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: #fff; border: none; border-radius: 10px;
+      padding: 10px 24px; font-family: 'Prompt', sans-serif;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-danger:hover:not(:disabled) { transform: translateY(-1px); }
 
-    /* ── Toast ── */
     #toast {
       position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
       z-index: 999; min-width: 240px; max-width: 360px;
@@ -231,8 +244,8 @@
     #toast.success { background: #0f766e; color: #fff; }
     #toast.error   { background: #b91c1c; color: #fff; }
     #toast.info    { background: var(--blue); color: #fff; }
+    #toast.warning { background: #d97706; color: #fff; }
 
-    /* ── Lightbox ── */
     .lb-wrap {
       background: #fff; border-radius: 20px; max-width: 860px; width: 100%;
       max-height: 92vh; display: flex; flex-direction: column; overflow: hidden;
@@ -244,14 +257,11 @@
     .lb-img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .lb-info { padding: 28px; overflow-y: auto; flex: 1; }
 
-    /* ── Spinner ── */
     .spinner { width: 44px; height: 44px; border: 4px solid #bae6fd; border-top-color: var(--blue); border-radius: 50%; animation: spin 0.85s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Card reveal ── */
     .reveal { opacity: 0; transform: translateY(18px); animation: slideup 0.4s ease forwards; }
 
-    /* ── Step indicator (upload process) ── */
     .step { display: flex; align-items: center; gap: 8px; font-family: 'Sarabun', sans-serif; font-size: 0.82rem; }
     .step-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; }
     .step-dot.pending  { background: #e2e8f0; color: #94a3b8; }
@@ -259,11 +269,44 @@
     .step-dot.done     { background: #10b981; color: #fff; }
     .step-dot.fail     { background: #ef4444; color: #fff; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    .sort-select {
+      border: 1.5px solid #bae6fd; border-radius: 8px;
+      padding: 5px 10px; font-family: 'Sarabun', sans-serif; font-size: 0.8rem;
+      background: #f8fafc; color: #475569; cursor: pointer;
+    }
+    .sort-select:focus { outline: none; border-color: var(--sky); }
+
+    .pagination { display: flex; gap: 4px; justify-content: center; align-items: center; margin-top: 24px; }
+    .page-btn {
+      min-width: 36px; height: 36px; border-radius: 8px;
+      border: 1px solid #e2e8f0; background: #fff;
+      font-family: 'Prompt', sans-serif; font-size: 0.82rem;
+      cursor: pointer; transition: all 0.15s; color: #475569;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .page-btn:hover { border-color: var(--sky); color: var(--blue); background: #f0f9ff; }
+    .page-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .confirm-modal {
+      background: #fff; border-radius: 16px; width: 100%; max-width: 400px;
+      padding: 28px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+      animation: slideup 0.28s ease;
+    }
+    .confirm-icon { width: 64px; height: 64px; border-radius: 50%; background: #fef2f2; color: var(--danger); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 16px; }
+    .confirm-title { font-family: 'Prompt', sans-serif; font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    .confirm-text { font-family: 'Sarabun', sans-serif; font-size: 0.9rem; color: #64748b; margin-bottom: 24px; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
+<base target="_blank">
 </head>
 <body>
 
-<!-- ════════════════ HERO HEADER ════════════════ -->
 <header class="hero text-white pt-12 pb-16 px-4 text-center relative">
   <div class="relative z-10 max-w-3xl mx-auto">
     <div class="inline-flex items-center gap-2 text-xs bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-5 backdrop-blur-sm">
@@ -283,24 +326,34 @@
         <div id="stat-cat" class="text-2xl font-bold">—</div>
         <div class="text-xs text-blue-100 mt-0.5">หมวดหมู่</div>
       </div>
+      <div class="stat-card">
+        <div id="stat-hidden" class="text-2xl font-bold">—</div>
+        <div class="text-xs text-blue-100 mt-0.5">ซ่อนอยู่</div>
+      </div>
     </div>
   </div>
 </header>
 
-<!-- ════════════════ STICKY NAV ════════════════ -->
 <div class="sticky-nav">
   <div class="max-w-6xl mx-auto px-4 py-2.5 flex flex-col sm:flex-row gap-2.5 items-center">
     <div class="relative w-full sm:w-64 flex-shrink-0">
       <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none">🔍</span>
       <input id="search" type="text" placeholder="ค้นหากิจกรรม..." class="search-box" />
     </div>
-    <div class="w-full overflow-x-auto pb-0.5">
+    <div class="flex-1 flex items-center gap-2 overflow-x-auto pb-0.5 w-full">
       <div id="ftabs" class="flex gap-1.5 w-max"></div>
+    </div>
+    <div class="flex-shrink-0">
+      <select id="sort" class="sort-select" onchange="handleSortChange()">
+        <option value="newest">ใหม่ล่าสุด</option>
+        <option value="oldest">เก่าที่สุด</option>
+        <option value="az">ชื่อ ก-ฮ</option>
+        <option value="za">ชื่อ ฮ-ก</option>
+      </select>
     </div>
   </div>
 </div>
 
-<!-- ════════════════ GALLERY MAIN ════════════════ -->
 <main class="max-w-6xl mx-auto px-4 py-8">
 
   <div id="s-loading" class="flex flex-col items-center justify-center py-28 gap-4">
@@ -322,22 +375,21 @@
   </div>
 
   <div id="s-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+
+  <div id="pagination" class="hidden pagination"></div>
+
   <div id="s-count" class="hidden text-center mt-8 text-sm text-slate-400 font-sarabun"></div>
 </main>
 
-<!-- ════════════════ FOOTER ════════════════ -->
 <footer class="text-center py-8 text-xs text-slate-400 font-sarabun border-t border-slate-200 mt-2">
   ระบบคลังภาพกิจกรรม &copy; <span id="yr"></span> &nbsp;|&nbsp; ข้อมูลจาก Google Sheets
 </footer>
 
-<!-- ════════════════ FAB ════════════════ -->
 <button class="fab" onclick="openAddModal()" title="เพิ่มกิจกรรมใหม่">＋</button>
 <div class="fab-label">เพิ่มกิจกรรมใหม่</div>
 
-<!-- ════════════════ TOAST ════════════════ -->
 <div id="toast"></div>
 
-<!-- ════════════════ LIGHTBOX MODAL ════════════════ -->
 <div id="lb-modal" class="modal-bg" onclick="closeLightbox(event)">
   <div class="lb-wrap" onclick="event.stopPropagation()">
     <div class="lb-img-side">
@@ -354,45 +406,43 @@
       <p class="text-sm text-slate-400 mb-4 font-sarabun">📅 <span id="lb-date"></span></p>
       <p id="lb-desc" class="text-slate-600 font-sarabun text-sm leading-relaxed"></p>
       <hr class="my-5 border-slate-100" />
-      <a id="lb-link" href="#" target="_blank" rel="noopener noreferrer" class="text-sm font-sarabun flex items-center gap-2 transition-colors" style="color:var(--blue)">
-        🔗 ดูรูปต้นฉบับใน Google Drive
-      </a>
+      <div class="flex gap-2 flex-wrap">
+        <a id="lb-link" href="#" target="_blank" rel="noopener noreferrer" class="text-sm font-sarabun flex items-center gap-2 transition-colors" style="color:var(--blue)">
+          🔗 ดูรูปต้นฉบับ
+        </a>
+        <button onclick="editFromLightbox()" class="text-sm font-sarabun flex items-center gap-2 text-amber-600 hover:text-amber-700 transition-colors">
+          ✏️ แก้ไข
+        </button>
+        <button onclick="deleteFromLightbox()" class="text-sm font-sarabun flex items-center gap-2 text-red-500 hover:text-red-600 transition-colors">
+          🗑️ ลบ
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ════════════════ ADD ACTIVITY MODAL ════════════════ -->
 <div id="add-modal" class="modal-bg" onclick="handleModalBgClick(event)">
   <div class="add-modal" onclick="event.stopPropagation()">
-
-    <!-- Header -->
     <div class="modal-head">
       <div class="flex justify-between items-start">
         <div>
-          <h2 class="text-lg font-bold">เพิ่มกิจกรรมใหม่</h2>
+          <h2 id="modal-title" class="text-lg font-bold">เพิ่มกิจกรรมใหม่</h2>
           <p class="text-blue-200 text-sm font-sarabun mt-0.5">กรอกข้อมูลและอัปโหลดรูปภาพ</p>
         </div>
         <button onclick="closeAddModal()" class="text-white/60 hover:text-white text-2xl leading-none transition-colors mt-0.5">×</button>
       </div>
     </div>
-
-    <!-- Body -->
     <div class="modal-body space-y-5">
-
-      <!-- Step indicator -->
+      <input type="hidden" id="f-rowId" value="" />
       <div id="steps-ui" class="hidden bg-slate-50 rounded-14 p-3 space-y-2 border border-slate-100" style="border-radius:12px">
         <div class="text-xs font-sarabun text-slate-500 mb-2 font-semibold">ขั้นตอนการบันทึก</div>
         <div class="step"><div id="st1" class="step-dot pending">1</div><span id="st1-label" class="text-slate-500">อัปโหลดรูปภาพไปยัง Google Drive</span></div>
         <div class="step"><div id="st2" class="step-dot pending">2</div><span id="st2-label" class="text-slate-500">บันทึกข้อมูลลง Google Sheet</span></div>
       </div>
-
-      <!-- ── ชื่อกิจกรรม ── -->
       <div>
         <label class="form-label">ชื่อกิจกรรม<span class="req">*</span></label>
         <input id="f-title" type="text" class="form-input" placeholder="เช่น งานอบรมพัฒนาบุคลากร 2567" maxlength="120" />
       </div>
-
-      <!-- ── วันที่ + หมวดหมู่ ── -->
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="form-label">วันที่จัดกิจกรรม<span class="req">*</span></label>
@@ -415,15 +465,11 @@
           <input id="f-cat" type="text" class="form-input mt-1.5" placeholder="หรือพิมพ์เอง..." />
         </div>
       </div>
-
-      <!-- ── รายละเอียด ── -->
       <div>
         <label class="form-label">รายละเอียดกิจกรรม</label>
         <textarea id="f-desc" class="form-textarea" placeholder="บรรยายกิจกรรมโดยย่อ..." maxlength="500"></textarea>
         <div class="text-right text-xs text-slate-400 mt-1"><span id="char-count">0</span>/500</div>
       </div>
-
-      <!-- ── สถานะ ── -->
       <div>
         <label class="form-label">สถานะการแสดงผล</label>
         <div class="flex gap-3">
@@ -437,8 +483,6 @@
           </label>
         </div>
       </div>
-
-      <!-- ── อัปโหลดรูปภาพ ── -->
       <div>
         <label class="form-label">รูปภาพกิจกรรม</label>
         <div id="drop-zone" class="drop-zone"
@@ -454,26 +498,33 @@
           <img id="drop-preview" class="drop-preview" alt="preview" />
         </div>
         <div id="dz-filename" class="text-xs text-slate-500 font-sarabun mt-2 hidden"></div>
-
-        <!-- Progress -->
+        <div id="current-image" class="text-xs text-slate-500 font-sarabun mt-2 hidden"></div>
         <div class="prog-bar" id="prog-bar">
           <div class="prog-fill" id="prog-fill" style="width:0%"></div>
         </div>
       </div>
-
-      <!-- ── Buttons ── -->
       <div class="flex gap-3 pt-2">
         <button class="btn-cancel flex-shrink-0" onclick="closeAddModal()">ยกเลิก</button>
         <button id="btn-save" class="btn-primary" onclick="submitActivity()">
           <span id="btn-label">💾 บันทึกกิจกรรม</span>
         </button>
       </div>
-
-    </div><!-- /modal-body -->
+    </div>
   </div>
 </div>
 
-<!-- ════════════════ JAVASCRIPT ════════════════ -->
+<div id="delete-modal" class="modal-bg" onclick="if(event.target===this)closeDeleteModal()">
+  <div class="confirm-modal" onclick="event.stopPropagation()">
+    <div class="confirm-icon">🗑️</div>
+    <h3 class="confirm-title">ยืนยันการลบ</h3>
+    <p class="confirm-text">คุณแน่ใจหรือไม่ว่าต้องการลบกิจกรรมนี้?<br>การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+    <div class="flex gap-3 justify-center">
+      <button class="btn-cancel" onclick="closeDeleteModal()">ยกเลิก</button>
+      <button id="btn-confirm-delete" class="btn-danger" onclick="confirmDelete()">ลบกิจกรรม</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════════════════════════════
 //  CONFIG
@@ -487,6 +538,12 @@ let allItems     = [];
 let activeFilter = 'ทั้งหมด';
 let searchQ      = '';
 let selectedFile = null;
+let currentSort  = 'newest';
+let currentPage  = 1;
+let itemsPerPage = 12;
+let editingRowId = null;
+let deletingRowId = null;
+let currentLightboxItem = null;
 
 const CAT_COLORS = [
   'bg-violet-100 text-violet-700','bg-emerald-100 text-emerald-700',
@@ -525,25 +582,43 @@ function buildTabs(cats) {
     const b = document.createElement('button');
     b.className = 'ftab' + (c===activeFilter?' on':'');
     b.textContent = c;
-    b.onclick = () => { activeFilter=c; wrap.querySelectorAll('.ftab').forEach(x=>x.classList.toggle('on',x.textContent===c)); render(); };
+    b.onclick = () => { activeFilter=c; currentPage=1; wrap.querySelectorAll('.ftab').forEach(x=>x.classList.toggle('on',x.textContent===c)); render(); };
     wrap.appendChild(b);
   });
 }
 
-function render() {
-  const grid = document.getElementById('s-grid');
-  grid.innerHTML = '';
+function getFilteredItems() {
   const q = searchQ.toLowerCase();
-  const list = allItems.filter(i => {
+  let list = allItems.filter(i => {
     const mc = activeFilter==='ทั้งหมด' || i.category===activeFilter;
     const ms = !q || i.title.toLowerCase().includes(q) || i.description.toLowerCase().includes(q) || i.category.toLowerCase().includes(q);
     return mc && ms;
   });
 
+  switch(currentSort) {
+    case 'newest': list.sort((a,b) => parseThaiDate(b.date) - parseThaiDate(a.date)); break;
+    case 'oldest': list.sort((a,b) => parseThaiDate(a.date) - parseThaiDate(b.date)); break;
+    case 'az': list.sort((a,b) => a.title.localeCompare(b.title, 'th')); break;
+    case 'za': list.sort((a,b) => b.title.localeCompare(a.title, 'th')); break;
+  }
+  return list;
+}
+
+function render() {
+  const grid = document.getElementById('s-grid');
+  grid.innerHTML = '';
+
+  const list = getFilteredItems();
+
   if (!list.length) { showState('empty'); return; }
   showState('grid');
 
-  list.forEach((item,i) => {
+  const totalPages = Math.ceil(list.length / itemsPerPage);
+  if (currentPage > totalPages) currentPage = totalPages || 1;
+  const start = (currentPage - 1) * itemsPerPage;
+  const pageItems = list.slice(start, start + itemsPerPage);
+
+  pageItems.forEach((item,i) => {
     const el = document.createElement('div');
     el.className = 'gcard reveal';
     el.style.animationDelay = `${i*50}ms`;
@@ -555,6 +630,10 @@ function render() {
                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
              <div class="cimg-ph" style="display:none">🖼️</div>`
           : `<div class="cimg-ph">🖼️</div>`}
+        <div class="card-actions">
+          <button class="card-action-btn edit" onclick="event.stopPropagation();editItem(${item.id})" title="แก้ไข">✏️</button>
+          <button class="card-action-btn delete" onclick="event.stopPropagation();confirmDeleteItem(${item.id})" title="ลบ">🗑️</button>
+        </div>
       </div>
       <div class="p-4">
         <span class="badge ${col} mb-2">${esc(item.category)}</span>
@@ -566,14 +645,49 @@ function render() {
     grid.appendChild(el);
   });
 
+  renderPagination(list.length, totalPages);
+
   const cnt = document.getElementById('s-count');
-  cnt.textContent = `แสดง ${list.length} รายการ จากทั้งหมด ${allItems.length} รายการ`;
+  cnt.textContent = `แสดง ${pageItems.length} รายการ จากทั้งหมด ${list.length} รายการ (หน้า ${currentPage}/${totalPages})`;
   cnt.classList.remove('hidden');
+}
+
+function renderPagination(totalItems, totalPages) {
+  const wrap = document.getElementById('pagination');
+  if (totalPages <= 1) { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+
+  let html = '';
+  html += `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>◀</button>`;
+
+  for (let i=1; i<=totalPages; i++) {
+    if (i===1 || i===totalPages || (i>=currentPage-1 && i<=currentPage+1)) {
+      html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    } else if (i===currentPage-2 || i===currentPage+2) {
+      html += `<span class="text-slate-400 px-1">…</span>`;
+    }
+  }
+
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>▶</button>`;
+  wrap.innerHTML = html;
+}
+
+function goPage(p) {
+  currentPage = p;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function handleSortChange() {
+  currentSort = document.getElementById('sort').value;
+  currentPage = 1;
+  render();
 }
 
 function updateStats(total, cats) {
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-cat').textContent   = cats;
+  document.getElementById('stat-hidden').textContent = '—';
   document.getElementById('stats').classList.remove('hidden');
 }
 
@@ -589,6 +703,7 @@ function showState(s) {
 //  LIGHTBOX
 // ════════════════════════════════════════════════════════════
 function openLb(item) {
+  currentLightboxItem = item;
   document.getElementById('lb-img').src      = item.imageUrl||'';
   document.getElementById('lb-title').textContent = item.title;
   document.getElementById('lb-date').textContent  = item.date||'—';
@@ -603,21 +718,80 @@ function closeLightbox(e) {
   if (e && e.currentTarget !== e.target) return;
   document.getElementById('lb-modal').classList.remove('open');
   document.body.style.overflow='';
+  currentLightboxItem = null;
+}
+
+function editFromLightbox() {
+  if (!currentLightboxItem) return;
+  closeLightbox();
+  editItem(currentLightboxItem.id);
+}
+
+function deleteFromLightbox() {
+  if (!currentLightboxItem) return;
+  closeLightbox();
+  confirmDeleteItem(currentLightboxItem.id);
 }
 
 // ════════════════════════════════════════════════════════════
-//  ADD ACTIVITY MODAL
+//  ADD / EDIT MODAL
 // ════════════════════════════════════════════════════════════
 function openAddModal() {
   resetForm();
+  editingRowId = null;
+  document.getElementById('modal-title').textContent = 'เพิ่มกิจกรรมใหม่';
   document.getElementById('add-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
-  // ตั้งวันที่เป็นวันนี้
   const today = new Date();
   const yyyy  = today.getFullYear();
   const mm    = String(today.getMonth()+1).padStart(2,'0');
   const dd    = String(today.getDate()).padStart(2,'0');
   document.getElementById('f-date').value = `${yyyy}-${mm}-${dd}`;
+}
+
+function editItem(rowId) {
+  const item = allItems.find(i => i.id === rowId);
+  if (!item) { showToast('ไม่พบข้อมูล','error'); return; }
+
+  resetForm();
+  editingRowId = rowId;
+  document.getElementById('modal-title').textContent = 'แก้ไขกิจกรรม';
+  document.getElementById('f-rowId').value = rowId;
+  document.getElementById('f-title').value = item.title;
+  document.getElementById('f-desc').value = item.description;
+  document.getElementById('f-cat').value = item.category;
+  document.getElementById('f-cat-select').value = item.category;
+
+  if (item.rawDate && item.rawDate.includes('T')) {
+    const d = new Date(item.rawDate);
+    document.getElementById('f-date').value = d.toISOString().split('T')[0];
+  } else if (item.date) {
+    const parts = item.date.split(/[\/\s]+/);
+    if (parts.length === 3) {
+      let d = parseInt(parts[0]);
+      let y = parseInt(parts[2]) - 543;
+      let m;
+      const thaiMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+      m = thaiMonths.indexOf(parts[1]);
+      if (m === -1) m = parseInt(parts[1]) - 1;
+      if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+        document.getElementById('f-date').value = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      }
+    }
+  }
+
+  const statusRadio = document.querySelector(`input[name="status"][value="${item.status}"]`);
+  if (statusRadio) statusRadio.checked = true;
+
+  if (item.imageUrl) {
+    const ci = document.getElementById('current-image');
+    ci.innerHTML = `📎 รูปภาพปัจจุบัน: <a href="${esc(item.imageUrl)}" target="_blank" class="text-blue-600 hover:underline">ดูรูป</a> (อัปโหลดใหม่เพื่อเปลี่ยน)`;
+    ci.classList.remove('hidden');
+  }
+
+  document.getElementById('btn-label').textContent = '💾 บันทึกการแก้ไข';
+  document.getElementById('add-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeAddModal() {
@@ -630,6 +804,7 @@ function handleModalBgClick(e) {
 }
 
 function resetForm() {
+  document.getElementById('f-rowId').value = '';
   document.getElementById('f-title').value = '';
   document.getElementById('f-date').value  = '';
   document.getElementById('f-cat').value   = '';
@@ -640,10 +815,12 @@ function resetForm() {
   document.getElementById('drop-preview').style.display = 'none';
   document.getElementById('dz-label').style.display     = '';
   document.getElementById('dz-filename').classList.add('hidden');
+  document.getElementById('current-image').classList.add('hidden');
   document.getElementById('prog-bar').style.display     = 'none';
   document.getElementById('prog-fill').style.width      = '0%';
   document.getElementById('steps-ui').classList.add('hidden');
   document.getElementById('char-count').textContent     = '0';
+  document.getElementById('btn-label').textContent      = '💾 บันทึกกิจกรรม';
   setBtnState(false);
   setStep(1,'pending'); setStep(2,'pending');
 }
@@ -687,11 +864,11 @@ async function submitActivity() {
   const cat    = document.getElementById('f-cat').value.trim() || 'ทั่วไป';
   const desc   = document.getElementById('f-desc').value.trim();
   const status = document.querySelector('input[name="status"]:checked').value;
+  const rowId  = document.getElementById('f-rowId').value;
 
   if (!title) { showToast('กรุณากรอกชื่อกิจกรรม','error'); document.getElementById('f-title').focus(); return; }
   if (!dateRaw){ showToast('กรุณาเลือกวันที่','error'); document.getElementById('f-date').focus(); return; }
 
-  // แปลงวันที่ → dd/MM/yyyy
   const [yyyy,mm,dd] = dateRaw.split('-');
   const dateFormatted = `${dd}/${mm}/${yyyy}`;
 
@@ -699,8 +876,8 @@ async function submitActivity() {
   document.getElementById('steps-ui').classList.remove('hidden');
 
   let imageUrl = '';
+  const existingItem = rowId ? allItems.find(i => i.id === parseInt(rowId)) : null;
 
-  // ─── Step 1: อัปโหลดรูป ──────────────────────────────
   if (selectedFile) {
     setStep(1,'active','กำลังอัปโหลดรูปภาพ...');
     setProgress(15);
@@ -726,31 +903,36 @@ async function submitActivity() {
       setBtnState(false);
       return;
     }
+  } else if (existingItem && existingItem.imageUrl) {
+    imageUrl = existingItem.imageUrl;
+    setStep(1,'done','ใช้รูปภาพเดิม');
   } else {
     setStep(1,'done','ไม่มีรูปภาพ (ข้ามขั้นตอนนี้)');
   }
 
-  // ─── Step 2: บันทึกข้อมูล ────────────────────────────
-  setStep(2,'active','กำลังบันทึกข้อมูล...');
+  setStep(2,'active', rowId ? 'กำลังบันทึกการแก้ไข...' : 'กำลังบันทึกข้อมูล...');
   setProgress(88);
 
   try {
-    const saveRes = await postAPI({
-      action: 'addActivity',
+    const payload = {
+      action: rowId ? 'updateActivity' : 'addActivity',
       date: dateFormatted,
       title, description: desc, category: cat,
       imageUrl, status,
-    });
+    };
+    if (rowId) payload.rowId = parseInt(rowId);
+
+    const saveRes = await postAPI(payload);
 
     if (!saveRes.success) throw new Error(saveRes.error || 'บันทึกล้มเหลว');
 
     setProgress(100);
-    setStep(2,'done','บันทึกลง Google Sheet สำเร็จ ✓');
-    showToast('เพิ่มกิจกรรม "' + title + '" สำเร็จ! 🎉', 'success');
+    setStep(2,'done', rowId ? 'บันทึกการแก้ไขสำเร็จ ✓' : 'บันทึกลง Google Sheet สำเร็จ ✓');
+    showToast(rowId ? `แก้ไขกิจกรรม "${title}" สำเร็จ! ✨` : `เพิ่มกิจกรรม "${title}" สำเร็จ! 🎉`, 'success');
 
     setTimeout(() => {
       closeAddModal();
-      loadGallery(); // รีโหลด gallery
+      loadGallery();
     }, 1200);
 
   } catch(e) {
@@ -760,11 +942,45 @@ async function submitActivity() {
   }
 }
 
+// ── Delete ────────────────────────────────────────────────
+function confirmDeleteItem(rowId) {
+  deletingRowId = rowId;
+  document.getElementById('delete-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDeleteModal() {
+  document.getElementById('delete-modal').classList.remove('open');
+  document.body.style.overflow = '';
+  deletingRowId = null;
+}
+
+async function confirmDelete() {
+  if (!deletingRowId) return;
+
+  const btn = document.getElementById('btn-confirm-delete');
+  btn.disabled = true;
+  btn.textContent = '⏳ กำลังลบ...';
+
+  try {
+    const res = await postAPI({ action: 'deleteActivity', rowId: deletingRowId });
+    if (!res.success) throw new Error(res.error || 'ลบล้มเหลว');
+
+    showToast('ลบกิจกรรมสำเร็จ', 'success');
+    closeDeleteModal();
+    loadGallery();
+  } catch(e) {
+    showToast('ลบล้มเหลว: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'ลบกิจกรรม';
+  }
+}
+
 // ── Helpers ───────────────────────────────────────────────
 function fileToBase64(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
-    r.onload  = e => res(e.target.result.split(',')[1]); // ตัด data:...;base64, ออก
+    r.onload  = e => res(e.target.result.split(',')[1]);
     r.onerror = () => rej(new Error('อ่านไฟล์ล้มเหลว'));
     r.readAsDataURL(file);
   });
@@ -773,7 +989,7 @@ function fileToBase64(file) {
 async function postAPI(payload) {
   const r = await fetch(API, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain' }, // Apps Script ต้องการ text/plain
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(payload),
   });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -789,7 +1005,7 @@ function setBtnState(loading) {
   const btn   = document.getElementById('btn-save');
   const label = document.getElementById('btn-label');
   btn.disabled  = loading;
-  label.textContent = loading ? '⏳ กำลังดำเนินการ...' : '💾 บันทึกกิจกรรม';
+  label.textContent = loading ? '⏳ กำลังดำเนินการ...' : (editingRowId ? '💾 บันทึกการแก้ไข' : '💾 บันทึกกิจกรรม');
 }
 
 function setStep(n, state, text) {
@@ -817,7 +1033,7 @@ function showToast(msg, type='info') {
 let searchDebounce;
 document.getElementById('search').addEventListener('input', e => {
   clearTimeout(searchDebounce);
-  searchDebounce = setTimeout(() => { searchQ = e.target.value.trim(); render(); }, 280);
+  searchDebounce = setTimeout(() => { searchQ = e.target.value.trim(); currentPage=1; render(); }, 280);
 });
 
 // ── Char count ───────────────────────────────────────────
@@ -830,6 +1046,7 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   document.getElementById('lb-modal').classList.remove('open');
   document.getElementById('add-modal').classList.remove('open');
+  document.getElementById('delete-modal').classList.remove('open');
   document.body.style.overflow = '';
 });
 
@@ -837,6 +1054,22 @@ document.addEventListener('keydown', e => {
 function esc(s) {
   if (!s) return '';
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Parse Thai Date for sorting ─────────────────────────
+function parseThaiDate(dateStr) {
+  if (!dateStr) return new Date(0);
+  const parts = dateStr.split(/[\/\s]+/);
+  if (parts.length === 3) {
+    let d = parseInt(parts[0]);
+    let y = parseInt(parts[2]) - 543;
+    let m;
+    const thaiMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    m = thaiMonths.indexOf(parts[1]);
+    if (m === -1) m = parseInt(parts[1]) - 1;
+    if (!isNaN(y) && !isNaN(m) && !isNaN(d)) return new Date(y, m, d);
+  }
+  return new Date(0);
 }
 
 // ════════════════════════════════════════════════════════════
