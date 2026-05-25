@@ -3,1079 +3,2099 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>คลังภาพกิจกรรม — Activity Gallery</title>
+  <title>คลังภาพกิจกรรม</title>
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            prompt:  ['Prompt','sans-serif'],
-            sarabun: ['Sarabun','sans-serif'],
-          },
-        },
-      },
-    };
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
   <style>
+    /* ══════════════════════════════════════════
+       DESIGN TOKENS
+    ══════════════════════════════════════════ */
     :root {
-      --navy:   #0c4a6e;
-      --blue:   #0369a1;
-      --sky:    #0ea5e9;
-      --light:  #f0f9ff;
-      --gold:   #f59e0b;
-      --danger: #dc2626;
-      --success:#059669;
+      --ink:        #1a1a2e;
+      --ink2:       #2d2d44;
+      --ink3:       #4a4a6a;
+      --muted:      #8888aa;
+      --border:     rgba(100,100,160,0.13);
+      --border2:    rgba(100,100,160,0.22);
+      --surface:    #ffffff;
+      --surface2:   #f7f7fb;
+      --surface3:   #f0f0f8;
+      --accent:     #3d5af1;
+      --accent2:    #6979f8;
+      --accent-rgb: 61,90,241;
+      --gold:       #e8a020;
+      --new-badge:  #e84040;
+      --radius-sm:  8px;
+      --radius-md:  14px;
+      --radius-lg:  20px;
+      --shadow-sm:  0 2px 8px rgba(0,0,20,0.06);
+      --shadow-md:  0 8px 28px rgba(0,0,20,0.10);
+      --shadow-lg:  0 24px 60px rgba(0,0,20,0.16);
+      --ease-out:   cubic-bezier(0.22,1,0.36,1);
+      --font-serif: 'Noto Serif Thai', serif;
+      --font-sans:  'Sarabun', sans-serif;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Sarabun', sans-serif; background: var(--light); min-height: 100vh; }
-    h1,h2,h3,h4 { font-family: 'Prompt', sans-serif; }
-
-    .hero {
-      background: linear-gradient(140deg, var(--navy) 0%, var(--blue) 55%, var(--sky) 100%);
-      position: relative; overflow: hidden;
-    }
-    .hero::before {
-      content: ''; position: absolute; inset: 0;
-      background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.06) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.04) 0%, transparent 40%);
-    }
-    .hero::after {
-      content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 40px;
-      background: var(--light);
-      clip-path: ellipse(55% 100% at 50% 100%);
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--surface2);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    .stat-card {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
-      backdrop-filter: blur(8px);
-      border-radius: 14px; padding: 12px 20px; text-align: center;
+    /* ══════════════════════════════════════════
+       HEADER / HERO
+    ══════════════════════════════════════════ */
+    .site-header {
+      position: relative;
+      background: var(--ink);
+      overflow: hidden;
+      padding: 64px 24px 80px;
+      text-align: center;
     }
 
-    .sticky-nav {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid #e0f2fe;
-      box-shadow: 0 1px 12px rgba(3,105,161,0.08);
+    /* Geometric background pattern */
+    .site-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(135deg, rgba(61,90,241,0.18) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 60% at 20% 100%, rgba(61,90,241,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 80% at 80% 0%, rgba(105,121,248,0.10) 0%, transparent 60%);
+    }
+    .site-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 48px;
+      background: var(--surface2);
+      clip-path: ellipse(52% 100% at 50% 100%);
     }
 
-    .ftab {
-      padding: 5px 16px; border-radius: 99px;
-      font-family: 'Prompt', sans-serif; font-size: 0.82rem;
-      cursor: pointer; border: 2px solid transparent;
-      background: #fff; color: #475569;
-      transition: all 0.18s ease; white-space: nowrap;
+    /* Decorative grid lines */
+    .header-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
     }
-    .ftab:hover { border-color: var(--sky); color: var(--blue); }
-    .ftab.on { background: var(--blue); color: #fff; border-color: var(--blue); }
 
-    .search-box {
-      border: 1.5px solid #bae6fd; border-radius: 99px;
-      padding: 7px 16px 7px 36px;
-      font-family: 'Sarabun', sans-serif; font-size: 0.875rem;
-      background: #f8fafc; width: 100%; transition: all 0.2s;
+    .header-content {
+      position: relative;
+      z-index: 2;
+      max-width: 680px;
+      margin: 0 auto;
     }
-    .search-box:focus { outline: none; border-color: var(--sky); box-shadow: 0 0 0 3px rgba(14,165,233,0.15); }
 
-    .gcard {
-      background: #fff; border-radius: 16px; overflow: hidden;
-      box-shadow: 0 2px 10px rgba(3,105,161,0.08);
-      cursor: pointer; transition: transform 0.28s ease, box-shadow 0.28s ease;
+    .header-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 99px;
+      padding: 5px 16px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 20px;
+      font-family: var(--font-sans);
+    }
+    .header-eyebrow span { color: var(--gold); }
+
+    .header-title {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      margin-bottom: 14px;
+    }
+
+    .header-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+      margin-bottom: 36px;
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      display: inline-flex;
+      gap: 0;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .stat-item {
+      padding: 12px 24px;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 3px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ══════════════════════════════════════════
+       STICKY CONTROLS BAR
+    ══════════════════════════════════════════ */
+    .controls-bar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(247,247,251,0.92);
+      backdrop-filter: blur(16px) saturate(1.4);
+      -webkit-backdrop-filter: blur(16px) saturate(1.4);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .controls-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+      flex: 0 0 auto;
+      width: 240px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 14px;
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      padding: 8px 12px 8px 34px;
+      border: 1.5px solid var(--border2);
+      border-radius: 99px;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      color: var(--ink);
+      background: var(--surface);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input::placeholder { color: var(--muted); }
+    .search-input:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.12);
+    }
+
+    /* Filter pills */
+    .filter-scroll {
+      flex: 1;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .filter-scroll::-webkit-scrollbar { display: none; }
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+      width: max-content;
+      padding: 2px 0;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 14px;
+      border-radius: 99px;
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid var(--border2);
+      background: var(--surface);
+      color: var(--ink3);
+      transition: all 0.18s var(--ease-out);
+      white-space: nowrap;
+      user-select: none;
+    }
+    .pill:hover {
+      border-color: var(--accent2);
+      color: var(--accent);
+      background: rgba(var(--accent-rgb),0.05);
+    }
+    .pill.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(var(--accent-rgb),0.32);
+    }
+    .pill-count {
+      background: rgba(0,0,0,0.12);
+      border-radius: 99px;
+      padding: 1px 6px;
+      font-size: 10px;
+    }
+    .pill.active .pill-count { background: rgba(255,255,255,0.2); }
+
+    /* Sort selector */
+    .sort-select {
+      padding: 7px 28px 7px 10px;
+      border: 1.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      color: var(--ink3);
+      background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238888aa'/%3E%3C/svg%3E") no-repeat right 10px center;
+      -webkit-appearance: none;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .sort-select:focus { border-color: var(--accent2); }
+
+    /* Result count */
+    .result-info {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════════
+       MAIN GALLERY AREA
+    ══════════════════════════════════════════ */
+    .gallery-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+
+    /* ── Masonry via columns ── */
+    .masonry-grid {
+      columns: 4;
+      column-gap: 16px;
+    }
+    @media (max-width: 1100px) { .masonry-grid { columns: 3; } }
+    @media (max-width: 720px)  { .masonry-grid { columns: 2; } }
+    @media (max-width: 440px)  { .masonry-grid { columns: 1; } }
+
+    /* ── Card ── */
+    .card {
+      break-inside: avoid;
+      margin-bottom: 16px;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.32s var(--ease-out), box-shadow 0.32s var(--ease-out), border-color 0.2s;
+
+      /* Card reveal animation */
+      opacity: 0;
+      transform: translateY(16px);
+      animation: cardIn 0.45s var(--ease-out) forwards;
+    }
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--border2);
+    }
+    .card:hover .card-img { transform: scale(1.05); }
+    .card:hover .card-overlay { opacity: 1; }
+
+    /* NEW badge */
+    .badge-new {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 5;
+      background: var(--new-badge);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 99px;
+      font-family: var(--font-sans);
+      box-shadow: 0 2px 6px rgba(232,64,64,0.4);
+    }
+
+    /* Image wrapper — variable heights for masonry feel */
+    .card-img-wrap {
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(135deg, var(--surface3), #e8e8f5);
+    }
+    .card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s var(--ease-out);
+      /* blur-up: start blurry, sharpen after load */
+      filter: blur(8px) brightness(0.96);
+      transform: scale(1.04);
+    }
+    .card-img.loaded {
+      filter: none;
+      transform: scale(1);
+      transition: transform 0.5s var(--ease-out), filter 0.4s ease;
+    }
+    .card-img-ph {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--muted);
+    }
+
+    /* Hover overlay */
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(26,26,46,0.7) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: flex-end;
+      padding: 14px;
+    }
+    .overlay-hint {
+      color: rgba(255,255,255,0.85);
+      font-size: 11.5px;
+      font-family: var(--font-sans);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Card body */
+    .card-body {
+      padding: 13px 14px 14px;
+    }
+
+    .card-cat {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 2px 9px;
+      border-radius: 99px;
+      margin-bottom: 7px;
+      font-family: var(--font-sans);
+    }
+
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .card-date {
+      font-size: 11.5px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--ink3);
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    /* ══════════════════════════════════════════
+       SKELETON LOADER
+    ══════════════════════════════════════════ */
+    .skeleton-grid {
+      columns: 4;
+      column-gap: 16px;
+    }
+    @media (max-width: 1100px) { .skeleton-grid { columns: 3; } }
+    @media (max-width: 720px)  { .skeleton-grid { columns: 2; } }
+    @media (max-width: 440px)  { .skeleton-grid { columns: 1; } }
+
+    .skel-card {
+      break-inside: avoid;
+      margin-bottom: 16px;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .skel-img {
+      width: 100%;
+      background: var(--surface3);
+    }
+    .skel-body { padding: 13px 14px 14px; }
+    .skel-line {
+      background: linear-gradient(90deg, var(--surface3) 25%, #eaeaf5 50%, var(--surface3) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ══════════════════════════════════════════
+       EMPTY / ERROR STATES
+    ══════════════════════════════════════════ */
+    .state-box {
+      text-align: center;
+      padding: 80px 24px;
+    }
+    .state-icon { font-size: 3.5rem; margin-bottom: 16px; }
+    .state-title {
+      font-family: var(--font-serif);
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--ink2);
+      margin-bottom: 8px;
+    }
+    .state-msg { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .state-btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 9px 22px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.2s, transform 0.18s;
+    }
+    .state-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* ══════════════════════════════════════════
+       LIGHTBOX
+    ══════════════════════════════════════════ */
+    .lb-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(10,10,20,0.80);
+      backdrop-filter: blur(10px) saturate(0.8);
+      -webkit-backdrop-filter: blur(10px) saturate(0.8);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .lb-backdrop.open {
+      display: flex;
+      animation: lbIn 0.22s ease;
+    }
+    @keyframes lbIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .lb-box {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 900px;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+      animation: lbSlide 0.3s var(--ease-out);
+    }
+    @keyframes lbSlide {
+      from { transform: translateY(24px) scale(0.98); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    @media (min-width: 680px) {
+      .lb-box { flex-direction: row; }
+    }
+
+    .lb-img-col {
+      flex: 0 0 auto;
+      width: 100%;
+      max-height: 45vw;
+      background: var(--ink);
+      overflow: hidden;
       position: relative;
     }
-    .gcard:hover { transform: translateY(-5px); box-shadow: 0 16px 32px rgba(3,105,161,0.18); }
-    .gcard:hover .cimg { transform: scale(1.06); }
-    .gcard:hover .card-actions { opacity: 1; pointer-events: auto; }
-
-    .cimg-wrap { height: 195px; overflow: hidden; background: linear-gradient(135deg,#e0f2fe,#bae6fd); position: relative; }
-    .cimg { width: 100%; height: 100%; object-fit: cover; transition: transform 0.45s ease; display: block; }
-    .cimg-ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #94a3b8; }
-
-    .card-actions {
-      position: absolute; top: 8px; right: 8px;
-      display: flex; gap: 4px; opacity: 0; pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
-    .card-action-btn {
-      width: 32px; height: 32px; border-radius: 8px;
-      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-      font-size: 0.85rem; transition: all 0.15s ease;
-      backdrop-filter: blur(8px);
-    }
-    .card-action-btn.edit { background: rgba(255,255,255,0.9); color: var(--blue); }
-    .card-action-btn.edit:hover { background: var(--blue); color: #fff; }
-    .card-action-btn.delete { background: rgba(255,255,255,0.9); color: var(--danger); }
-    .card-action-btn.delete:hover { background: var(--danger); color: #fff; }
-
-    .badge {
-      display: inline-block; padding: 2px 10px;
-      border-radius: 99px; font-size: 0.7rem; font-weight: 600; font-family: 'Prompt', sans-serif;
+    @media (min-width: 680px) {
+      .lb-img-col { width: 58%; max-height: unset; min-height: 420px; }
     }
 
+    .lb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Nav arrows */
+    .lb-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 0.18s;
+      backdrop-filter: blur(6px);
+      z-index: 5;
+      user-select: none;
+    }
+    .lb-arrow:hover { background: rgba(255,255,255,0.24); }
+    .lb-arrow.prev { left: 12px; }
+    .lb-arrow.next { right: 12px; }
+
+    .lb-info-col {
+      flex: 1;
+      padding: 28px 26px 26px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lb-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.18);
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10;
+      backdrop-filter: blur(4px);
+      transition: background 0.18s;
+    }
+    .lb-close:hover { background: rgba(0,0,0,0.38); }
+
+    .lb-cat {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      padding: 3px 10px;
+      border-radius: 99px;
+      margin-bottom: 10px;
+    }
+    .lb-title {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .lb-date {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .lb-desc {
+      font-size: 14px;
+      color: var(--ink3);
+      line-height: 1.7;
+      flex: 1;
+    }
+    .lb-link {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 12.5px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.18s;
+    }
+    .lb-link:hover { opacity: 0.75; }
+
+    /* Counter in lightbox */
+    .lb-counter {
+      font-size: 11.5px;
+      color: var(--muted);
+      text-align: right;
+      margin-bottom: 6px;
+    }
+
+    /* ══════════════════════════════════════════
+       FAB — Add button
+    ══════════════════════════════════════════ */
     .fab {
-      position: fixed; bottom: 28px; right: 28px; z-index: 200;
-      width: 58px; height: 58px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--blue), var(--sky));
-      color: #fff; border: none; cursor: pointer;
-      box-shadow: 0 6px 20px rgba(3,105,161,0.45);
-      font-size: 1.6rem; display: flex; align-items: center; justify-content: center;
-      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      position: fixed;
+      bottom: 28px; right: 28px;
+      z-index: 500;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 24px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(var(--accent-rgb),0.45);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.22s var(--ease-out), box-shadow 0.22s;
     }
-    .fab:hover { transform: scale(1.1) rotate(15deg); box-shadow: 0 10px 28px rgba(3,105,161,0.5); }
-    .fab-label {
-      position: fixed; bottom: 34px; right: 96px; z-index: 200;
-      background: var(--navy); color: #fff;
-      padding: 5px 12px; border-radius: 8px;
-      font-family: 'Prompt', sans-serif; font-size: 0.8rem;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s;
-      white-space: nowrap;
+    .fab:hover {
+      transform: scale(1.1) rotate(12deg);
+      box-shadow: 0 10px 28px rgba(var(--accent-rgb),0.55);
     }
-    .fab:hover ~ .fab-label { opacity: 1; }
 
-    .modal-bg {
-      display: none; position: fixed; inset: 0; z-index: 300;
-      background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
-      align-items: center; justify-content: center; padding: 16px;
+    /* ══════════════════════════════════════════
+       ADD MODAL
+    ══════════════════════════════════════════ */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 600;
+      background: rgba(10,10,20,0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
-    .modal-bg.open { display: flex; animation: fadein 0.2s ease; }
-    @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideup { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-backdrop.open { display: flex; animation: lbIn 0.2s ease; }
 
-    .add-modal {
-      background: #fff; border-radius: 22px; width: 100%; max-width: 560px;
-      max-height: 92vh; overflow-y: auto;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.2);
-      animation: slideup 0.28s ease;
+    .modal-box {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 540px;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      animation: lbSlide 0.28s var(--ease-out);
     }
+
     .modal-head {
-      background: linear-gradient(135deg, var(--navy), var(--blue));
-      padding: 22px 28px; color: #fff; border-radius: 22px 22px 0 0;
-      position: sticky; top: 0; z-index: 10;
+      background: var(--ink);
+      padding: 22px 26px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 5;
     }
-    .modal-body { padding: 24px 28px 28px; }
+    .modal-head-title {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .modal-head-sub {
+      font-size: 12.5px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 3px;
+    }
 
+    .modal-body { padding: 22px 26px 28px; }
+    .form-row { margin-bottom: 16px; }
     .form-label {
-      display: block; font-family: 'Prompt', sans-serif; font-size: 0.82rem;
-      font-weight: 600; color: #334155; margin-bottom: 6px;
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink2);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
     }
-    .form-label .req { color: #ef4444; margin-left: 3px; }
-    .form-input, .form-select, .form-textarea {
-      width: 100%; border: 1.5px solid #cbd5e1; border-radius: 10px;
-      padding: 9px 14px; font-family: 'Sarabun', sans-serif; font-size: 0.9rem;
-      color: #1e293b; background: #f8fafc;
-      transition: border-color 0.18s, box-shadow 0.18s;
+    .form-label .req { color: var(--new-badge); margin-left: 2px; }
+    .form-control {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      color: var(--ink);
+      background: var(--surface2);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      outline: none; border-color: var(--sky);
-      box-shadow: 0 0 0 3px rgba(14,165,233,0.15);
-      background: #fff;
+    .form-control:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.1);
+      background: var(--surface);
     }
-    .form-textarea { resize: vertical; min-height: 80px; }
+    textarea.form-control { resize: vertical; min-height: 80px; }
 
     .drop-zone {
-      border: 2px dashed #94a3b8; border-radius: 14px;
-      padding: 28px 16px; text-align: center; cursor: pointer;
-      transition: all 0.2s ease; background: #f8fafc;
-      position: relative; overflow: hidden;
+      border: 2px dashed var(--border2);
+      border-radius: var(--radius-md);
+      padding: 28px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: var(--surface2);
+      position: relative;
+      overflow: hidden;
     }
     .drop-zone:hover, .drop-zone.drag-over {
-      border-color: var(--sky); background: #e0f2fe;
+      border-color: var(--accent2);
+      background: rgba(var(--accent-rgb),0.04);
     }
     .drop-zone input[type=file] {
       position: absolute; inset: 0; opacity: 0; cursor: pointer;
     }
     .drop-preview {
-      width: 100%; max-height: 200px; object-fit: contain;
-      border-radius: 10px; margin-top: 12px; display: none;
+      width: 100%; max-height: 180px; object-fit: contain;
+      border-radius: var(--radius-sm); margin-top: 12px; display: none;
     }
 
     .prog-bar {
-      height: 6px; border-radius: 99px; background: #e2e8f0;
-      overflow: hidden; margin-top: 10px; display: none;
+      height: 4px; border-radius: 99px;
+      background: var(--surface3); overflow: hidden;
+      margin-top: 10px; display: none;
     }
     .prog-fill {
       height: 100%; border-radius: 99px;
-      background: linear-gradient(90deg, var(--blue), var(--sky));
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
       transition: width 0.3s ease;
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--blue), var(--sky));
-      color: #fff; border: none; border-radius: 10px;
-      padding: 10px 24px; font-family: 'Prompt', sans-serif;
-      font-size: 0.9rem; font-weight: 600; cursor: pointer;
-      transition: all 0.2s ease; width: 100%;
-      box-shadow: 0 4px 12px rgba(3,105,161,0.3);
+    .steps-ui {
+      display: none;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 16px;
     }
-    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(3,105,161,0.4); }
-    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-cancel {
-      background: #f1f5f9; color: #64748b; border: none; border-radius: 10px;
-      padding: 10px 20px; font-family: 'Prompt', sans-serif; font-size: 0.9rem;
-      cursor: pointer; transition: background 0.15s;
+    .step-row {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12.5px; color: var(--ink3);
+      padding: 4px 0;
     }
-    .btn-cancel:hover { background: #e2e8f0; }
-    .btn-danger {
-      background: linear-gradient(135deg, #dc2626, #ef4444);
-      color: #fff; border: none; border-radius: 10px;
-      padding: 10px 24px; font-family: 'Prompt', sans-serif;
-      font-size: 0.9rem; font-weight: 600; cursor: pointer;
-      transition: all 0.2s ease;
+    .step-dot {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; flex-shrink: 0;
     }
-    .btn-danger:hover:not(:disabled) { transform: translateY(-1px); }
-
-    #toast {
-      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-      z-index: 999; min-width: 240px; max-width: 360px;
-      padding: 12px 20px; border-radius: 12px;
-      font-family: 'Sarabun', sans-serif; font-size: 0.9rem;
-      text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(8px);
-    }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    #toast.success { background: #0f766e; color: #fff; }
-    #toast.error   { background: #b91c1c; color: #fff; }
-    #toast.info    { background: var(--blue); color: #fff; }
-    #toast.warning { background: #d97706; color: #fff; }
-
-    .lb-wrap {
-      background: #fff; border-radius: 20px; max-width: 860px; width: 100%;
-      max-height: 92vh; display: flex; flex-direction: column; overflow: hidden;
-      animation: slideup 0.28s ease;
-    }
-    @media(min-width:768px) { .lb-wrap { flex-direction: row; } }
-    .lb-img-side { flex: 0 0 auto; width: 100%; max-height: 52vw; background: var(--navy); overflow: hidden; }
-    @media(min-width:768px) { .lb-img-side { width: 55%; max-height: unset; min-height: 400px; } }
-    .lb-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .lb-info { padding: 28px; overflow-y: auto; flex: 1; }
-
-    .spinner { width: 44px; height: 44px; border: 4px solid #bae6fd; border-top-color: var(--blue); border-radius: 50%; animation: spin 0.85s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .reveal { opacity: 0; transform: translateY(18px); animation: slideup 0.4s ease forwards; }
-
-    .step { display: flex; align-items: center; gap: 8px; font-family: 'Sarabun', sans-serif; font-size: 0.82rem; }
-    .step-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; }
-    .step-dot.pending  { background: #e2e8f0; color: #94a3b8; }
-    .step-dot.active   { background: var(--sky); color: #fff; animation: pulse 1s ease-in-out infinite; }
+    .step-dot.pending  { background: var(--surface3); color: var(--muted); }
+    .step-dot.active   { background: var(--accent2); color: #fff; animation: pulse 1s ease-in-out infinite; }
     .step-dot.done     { background: #10b981; color: #fff; }
-    .step-dot.fail     { background: #ef4444; color: #fff; }
+    .step-dot.fail     { background: var(--new-badge); color: #fff; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
-    .sort-select {
-      border: 1.5px solid #bae6fd; border-radius: 8px;
-      padding: 5px 10px; font-family: 'Sarabun', sans-serif; font-size: 0.8rem;
-      background: #f8fafc; color: #475569; cursor: pointer;
+    .btn-row { display: flex; gap: 10px; margin-top: 6px; }
+    .btn-primary {
+      flex: 1;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.18s, transform 0.18s;
+      box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.32);
     }
-    .sort-select:focus { outline: none; border-color: var(--sky); }
+    .btn-primary:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-cancel {
+      padding: 10px 18px;
+      background: var(--surface3);
+      color: var(--ink3);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-cancel:hover { background: var(--border); }
 
-    .pagination { display: flex; gap: 4px; justify-content: center; align-items: center; margin-top: 24px; }
-    .page-btn {
-      min-width: 36px; height: 36px; border-radius: 8px;
-      border: 1px solid #e2e8f0; background: #fff;
-      font-family: 'Prompt', sans-serif; font-size: 0.82rem;
-      cursor: pointer; transition: all 0.15s; color: #475569;
+    /* ══════════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════════ */
+    #toast {
+      position: fixed;
+      bottom: 92px; left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      z-index: 9000;
+      min-width: 220px; max-width: 340px;
+      padding: 11px 18px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s, transform 0.28s;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    #toast.success { background: #0f766e; color: #fff; }
+    #toast.error   { background: #b91c1c; color: #fff; }
+    #toast.info    { background: var(--accent); color: #fff; }
+
+    /* ══════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════ */
+    .site-footer {
+      text-align: center;
+      padding: 28px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ══════════════════════════════════════════
+       COLOR PALETTE FOR CATEGORIES
+    ══════════════════════════════════════════ */
+    .cat--0  { background: #ede9ff; color: #5b35d5; }
+    .cat--1  { background: #e0f5ee; color: #0f6e56; }
+    .cat--2  { background: #fff3dc; color: #9a6000; }
+    .cat--3  { background: #ffe8e8; color: #b91c1c; }
+    .cat--4  { background: #e0f0ff; color: #1853a8; }
+    .cat--5  { background: #e8ffe8; color: #166534; }
+    .cat--6  { background: #ffeaf7; color: #9d174d; }
+    .cat--7  { background: #fff0e8; color: #9a3412; }
+
+    /* Utilities */
+    .hidden { display: none !important; }
+
+    /* ══════════════════════════════════════════
+       PHASE 2 — MEDIA TYPE STYLES
+    ══════════════════════════════════════════ */
+
+    /* Media type badge บนการ์ด (มุมขวาบน) */
+    .media-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      font-family: var(--font-sans);
+      backdrop-filter: blur(6px);
+    }
+    .media-badge.type-image   { background: rgba(20,20,40,0.55); color: rgba(255,255,255,0.85); }
+    .media-badge.type-pdf     { background: rgba(185,28,28,0.85); color: #fff; }
+    .media-badge.type-video   { background: rgba(8,68,130,0.85);  color: #fff; }
+    .media-badge.type-youtube { background: rgba(180,0,0,0.90);   color: #fff; }
+
+    /* Play button overlay สำหรับ video/youtube */
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .play-btn {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
       display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      transition: transform 0.2s var(--ease-out), box-shadow 0.2s;
     }
-    .page-btn:hover { border-color: var(--sky); color: var(--blue); background: #f0f9ff; }
-    .page-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
-    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .confirm-modal {
-      background: #fff; border-radius: 16px; width: 100%; max-width: 400px;
-      padding: 28px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.2);
-      animation: slideup 0.28s ease;
+    .card:hover .play-btn {
+      transform: scale(1.12);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     }
-    .confirm-icon { width: 64px; height: 64px; border-radius: 50%; background: #fef2f2; color: var(--danger); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 16px; }
-    .confirm-title { font-family: 'Prompt', sans-serif; font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
-    .confirm-text { font-family: 'Sarabun', sans-serif; font-size: 0.9rem; color: #64748b; margin-bottom: 24px; }
 
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    /* PDF thumbnail overlay */
+    .pdf-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 4;
+      background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+      pointer-events: none;
+    }
+    .pdf-icon { font-size: 2.8rem; margin-bottom: 6px; }
+    .pdf-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #b91c1c;
+      letter-spacing: 0.1em;
+      font-family: var(--font-sans);
+    }
+
+    /* Lightbox — media col สำหรับ iframe/video */
+    .lb-iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 300px;
+      border: none;
+      display: block;
+      background: #000;
+    }
+    .lb-video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #000;
+      outline: none;
+    }
+    .lb-pdf-wrap {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .lb-pdf-iframe {
+      flex: 1;
+      border: none;
+      background: #f5f5f5;
+    }
+    .lb-pdf-bar {
+      background: #1a1a2e;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .lb-pdf-bar a {
+      color: #fff;
+      font-size: 12.5px;
+      text-decoration: none;
+      font-family: var(--font-sans);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.85;
+      transition: opacity 0.18s;
+    }
+    .lb-pdf-bar a:hover { opacity: 1; }
+
+    /* Type indicator แถบด้านบนใน lightbox info */
+    .lb-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+      font-family: var(--font-sans);
+    }
+    .lb-type-badge.type-image   { background: #e0f0ff; color: #1853a8; }
+    .lb-type-badge.type-pdf     { background: #ffe8e8; color: #b91c1c; }
+    .lb-type-badge.type-video   { background: #e8f0ff; color: #1e40af; }
+    .lb-type-badge.type-youtube { background: #ffe8e8; color: #991b1b; }
+
+    /* Upload modal — media type selector tabs */
+    .type-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      background: var(--surface3);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+    }
+    .type-tab {
+      flex: 1;
+      padding: 7px 4px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.18s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      line-height: 1.2;
+    }
+    .type-tab .tab-icon { font-size: 16px; }
+    .type-tab:hover { color: var(--ink2); background: rgba(255,255,255,0.6); }
+    .type-tab.active {
+      background: var(--surface);
+      color: var(--accent);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* YouTube URL input section */
+    .yt-section { display: none; }
+    .yt-preview {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: #000;
+      margin-top: 10px;
+      display: none;
+    }
   </style>
-<base target="_blank">
 </head>
 <body>
 
-<header class="hero text-white pt-12 pb-16 px-4 text-center relative">
-  <div class="relative z-10 max-w-3xl mx-auto">
-    <div class="inline-flex items-center gap-2 text-xs bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-5 backdrop-blur-sm">
-      <span style="color:var(--gold)">✦</span>
-      <span class="font-sarabun tracking-wider">ระบบคลังรูปภาพกิจกรรม</span>
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="site-header">
+  <div class="header-grid"></div>
+  <div class="header-content">
+    <div class="header-eyebrow">
+      <span>✦</span> ระบบคลังรูปภาพกิจกรรม
     </div>
-    <h1 class="text-4xl md:text-5xl font-bold mb-3 drop-shadow-md">ภาพกิจกรรมของเรา</h1>
-    <p class="text-blue-100 font-sarabun font-light md:text-lg max-w-lg mx-auto">
-      รวมภาพบรรยากาศกิจกรรมสำคัญ พร้อมข้อมูลรายละเอียด
-    </p>
-    <div id="stats" class="hidden flex justify-center gap-4 mt-8 flex-wrap">
-      <div class="stat-card">
-        <div id="stat-total" class="text-2xl font-bold">—</div>
-        <div class="text-xs text-blue-100 mt-0.5">รูปทั้งหมด</div>
+    <h1 class="header-title">ภาพกิจกรรมของเรา</h1>
+    <p class="header-sub">รวมภาพบรรยากาศกิจกรรมสำคัญ พร้อมข้อมูลรายละเอียด</p>
+
+    <div id="stats-strip" class="stats-strip hidden">
+      <div class="stat-item">
+        <div id="stat-total" class="stat-num">—</div>
+        <div class="stat-label">รูปทั้งหมด</div>
       </div>
-      <div class="stat-card">
-        <div id="stat-cat" class="text-2xl font-bold">—</div>
-        <div class="text-xs text-blue-100 mt-0.5">หมวดหมู่</div>
+      <div class="stat-item">
+        <div id="stat-cat" class="stat-num">—</div>
+        <div class="stat-label">หมวดหมู่</div>
       </div>
-      <div class="stat-card">
-        <div id="stat-hidden" class="text-2xl font-bold">—</div>
-        <div class="text-xs text-blue-100 mt-0.5">ซ่อนอยู่</div>
+      <div class="stat-item">
+        <div id="stat-new" class="stat-num">—</div>
+        <div class="stat-label">เดือนนี้</div>
       </div>
     </div>
   </div>
 </header>
 
-<div class="sticky-nav">
-  <div class="max-w-6xl mx-auto px-4 py-2.5 flex flex-col sm:flex-row gap-2.5 items-center">
-    <div class="relative w-full sm:w-64 flex-shrink-0">
-      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none">🔍</span>
-      <input id="search" type="text" placeholder="ค้นหากิจกรรม..." class="search-box" />
+<!-- ═══════════════ CONTROLS ═══════════════ -->
+<div class="controls-bar" id="controls-bar">
+  <div class="controls-inner">
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input id="search-input" type="text" class="search-input" placeholder="ค้นหากิจกรรม..." />
     </div>
-    <div class="flex-1 flex items-center gap-2 overflow-x-auto pb-0.5 w-full">
-      <div id="ftabs" class="flex gap-1.5 w-max"></div>
+
+    <!-- Filter pills -->
+    <div class="filter-scroll">
+      <div id="filter-pills" class="filter-pills"></div>
     </div>
-    <div class="flex-shrink-0">
-      <select id="sort" class="sort-select" onchange="handleSortChange()">
-        <option value="newest">ใหม่ล่าสุด</option>
-        <option value="oldest">เก่าที่สุด</option>
-        <option value="az">ชื่อ ก-ฮ</option>
-        <option value="za">ชื่อ ฮ-ก</option>
-      </select>
-    </div>
+
+    <!-- Sort -->
+    <select id="sort-select" class="sort-select" title="เรียงลำดับ">
+      <option value="newest">ล่าสุดก่อน</option>
+      <option value="oldest">เก่าสุดก่อน</option>
+      <option value="az">ชื่อ ก–ฮ</option>
+      <option value="za">ชื่อ ฮ–ก</option>
+    </select>
+
+    <!-- Count -->
+    <div id="result-info" class="result-info hidden"></div>
   </div>
 </div>
 
-<main class="max-w-6xl mx-auto px-4 py-8">
+<!-- ═══════════════ GALLERY ═══════════════ -->
+<main class="gallery-wrap">
 
-  <div id="s-loading" class="flex flex-col items-center justify-center py-28 gap-4">
-    <div class="spinner"></div>
-    <p class="text-slate-500 font-sarabun text-sm">กำลังโหลดข้อมูล...</p>
+  <!-- Skeleton loader -->
+  <div id="s-skeleton" class="skeleton-grid">
+    <!-- JS generates skeletons -->
   </div>
 
-  <div id="s-error" class="hidden flex flex-col items-center justify-center py-28 gap-3 text-center">
-    <div class="text-5xl">⚠️</div>
-    <h3 class="text-lg font-semibold text-slate-700">เกิดข้อผิดพลาด</h3>
-    <p id="err-msg" class="text-slate-500 font-sarabun text-sm max-w-sm"></p>
-    <button onclick="loadGallery()" class="mt-3 px-6 py-2 rounded-full text-sm font-prompt text-white" style="background:var(--blue)">ลองใหม่</button>
+  <!-- Error state -->
+  <div id="s-error" class="state-box hidden">
+    <div class="state-icon">⚠️</div>
+    <div class="state-title">เกิดข้อผิดพลาด</div>
+    <p id="err-msg" class="state-msg"></p>
+    <button class="state-btn" onclick="loadGallery()">ลองใหม่อีกครั้ง</button>
   </div>
 
-  <div id="s-empty" class="hidden flex flex-col items-center justify-center py-28 gap-3 text-center">
-    <div class="text-6xl">🖼️</div>
-    <h3 class="text-lg font-semibold text-slate-600">ไม่พบข้อมูล</h3>
-    <p class="text-slate-400 font-sarabun text-sm">ลองเปลี่ยนตัวกรองหรือเพิ่มกิจกรรมใหม่</p>
+  <!-- Empty state -->
+  <div id="s-empty" class="state-box hidden">
+    <div class="state-icon">🖼️</div>
+    <div class="state-title">ไม่พบรายการ</div>
+    <p class="state-msg">ลองเปลี่ยนตัวกรอง หรือเพิ่มกิจกรรมใหม่</p>
   </div>
 
-  <div id="s-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+  <!-- Masonry grid -->
+  <div id="s-grid" class="masonry-grid hidden"></div>
 
-  <div id="pagination" class="hidden pagination"></div>
-
-  <div id="s-count" class="hidden text-center mt-8 text-sm text-slate-400 font-sarabun"></div>
 </main>
 
-<footer class="text-center py-8 text-xs text-slate-400 font-sarabun border-t border-slate-200 mt-2">
-  ระบบคลังภาพกิจกรรม &copy; <span id="yr"></span> &nbsp;|&nbsp; ข้อมูลจาก Google Sheets
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="site-footer">
+  คลังภาพกิจกรรม &copy; <span id="yr"></span> &nbsp;|&nbsp; ข้อมูลจาก Google Sheets
 </footer>
 
+<!-- FAB -->
 <button class="fab" onclick="openAddModal()" title="เพิ่มกิจกรรมใหม่">＋</button>
-<div class="fab-label">เพิ่มกิจกรรมใหม่</div>
 
+<!-- Toast -->
 <div id="toast"></div>
 
-<div id="lb-modal" class="modal-bg" onclick="closeLightbox(event)">
-  <div class="lb-wrap" onclick="event.stopPropagation()">
-    <div class="lb-img-side">
-      <img id="lb-img" src="" alt="" class="lb-img" />
+<!-- ═══════════════ LIGHTBOX ═══════════════ -->
+<div id="lb-backdrop" class="lb-backdrop" onclick="closeLB(event)">
+  <div class="lb-box" onclick="event.stopPropagation()" role="dialog" aria-modal="true">
+    <!-- Media side (image / iframe / video แสดงตาม type) -->
+    <div class="lb-img-col" id="lb-media-col">
+      <button class="lb-close" onclick="closeLB()" aria-label="ปิด">×</button>
+      <button class="lb-arrow prev" id="lb-prev" onclick="shiftLB(-1)" aria-label="ก่อนหน้า">‹</button>
+      <button class="lb-arrow next" id="lb-next" onclick="shiftLB(+1)" aria-label="ถัดไป">›</button>
+
+      <!-- Image -->
+      <img id="lb-img" class="lb-img" src="" alt="" style="display:none;" />
+
+      <!-- Placeholder -->
+      <div id="lb-img-ph" class="card-img-ph" style="height:100%;position:absolute;inset:0;display:none;">🖼️</div>
+
+      <!-- Video (Drive mp4) -->
+      <video id="lb-video" class="lb-video" controls style="display:none;" preload="metadata"></video>
+
+      <!-- PDF / YouTube embed iframe -->
+      <iframe id="lb-iframe" class="lb-iframe" src="" allowfullscreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              style="display:none;"></iframe>
     </div>
-    <div class="lb-info">
-      <div class="flex justify-between items-start gap-2 mb-4">
-        <div>
-          <span id="lb-badge" class="badge"></span>
-          <h2 id="lb-title" class="text-xl font-bold text-slate-800 leading-snug mt-2"></h2>
-        </div>
-        <button onclick="closeLightbox()" class="text-3xl text-slate-400 hover:text-slate-600 leading-none transition-colors">×</button>
-      </div>
-      <p class="text-sm text-slate-400 mb-4 font-sarabun">📅 <span id="lb-date"></span></p>
-      <p id="lb-desc" class="text-slate-600 font-sarabun text-sm leading-relaxed"></p>
-      <hr class="my-5 border-slate-100" />
-      <div class="flex gap-2 flex-wrap">
-        <a id="lb-link" href="#" target="_blank" rel="noopener noreferrer" class="text-sm font-sarabun flex items-center gap-2 transition-colors" style="color:var(--blue)">
-          🔗 ดูรูปต้นฉบับ
-        </a>
-        <button onclick="editFromLightbox()" class="text-sm font-sarabun flex items-center gap-2 text-amber-600 hover:text-amber-700 transition-colors">
-          ✏️ แก้ไข
-        </button>
-        <button onclick="deleteFromLightbox()" class="text-sm font-sarabun flex items-center gap-2 text-red-500 hover:text-red-600 transition-colors">
-          🗑️ ลบ
-        </button>
-      </div>
+
+    <!-- Info side -->
+    <div class="lb-info-col">
+      <div id="lb-counter" class="lb-counter"></div>
+
+      <!-- Type badge -->
+      <div id="lb-type-badge" class="lb-type-badge"></div>
+
+      <span id="lb-cat" class="lb-cat"></span>
+      <h2 id="lb-title" class="lb-title"></h2>
+      <div id="lb-date" class="lb-date"></div>
+      <p id="lb-desc" class="lb-desc"></p>
+
+      <!-- Download link (PDF) -->
+      <a id="lb-download" class="lb-link" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">
+        ⬇️ ดาวน์โหลด PDF
+      </a>
+
+      <!-- Original link -->
+      <a id="lb-link" class="lb-link" href="#" target="_blank" rel="noopener noreferrer">
+        🔗 ดูไฟล์ต้นฉบับ
+      </a>
     </div>
   </div>
 </div>
 
-<div id="add-modal" class="modal-bg" onclick="handleModalBgClick(event)">
-  <div class="add-modal" onclick="event.stopPropagation()">
+<!-- ═══════════════ ADD MODAL ═══════════════ -->
+<div id="add-modal" class="modal-backdrop" onclick="handleModalBg(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-head">
-      <div class="flex justify-between items-start">
-        <div>
-          <h2 id="modal-title" class="text-lg font-bold">เพิ่มกิจกรรมใหม่</h2>
-          <p class="text-blue-200 text-sm font-sarabun mt-0.5">กรอกข้อมูลและอัปโหลดรูปภาพ</p>
-        </div>
-        <button onclick="closeAddModal()" class="text-white/60 hover:text-white text-2xl leading-none transition-colors mt-0.5">×</button>
-      </div>
+      <div class="modal-head-title">เพิ่มกิจกรรมใหม่</div>
+      <div class="modal-head-sub">รองรับ รูปภาพ · PDF · วิดีโอ · YouTube</div>
     </div>
-    <div class="modal-body space-y-5">
-      <input type="hidden" id="f-rowId" value="" />
-      <div id="steps-ui" class="hidden bg-slate-50 rounded-14 p-3 space-y-2 border border-slate-100" style="border-radius:12px">
-        <div class="text-xs font-sarabun text-slate-500 mb-2 font-semibold">ขั้นตอนการบันทึก</div>
-        <div class="step"><div id="st1" class="step-dot pending">1</div><span id="st1-label" class="text-slate-500">อัปโหลดรูปภาพไปยัง Google Drive</span></div>
-        <div class="step"><div id="st2" class="step-dot pending">2</div><span id="st2-label" class="text-slate-500">บันทึกข้อมูลลง Google Sheet</span></div>
+    <div class="modal-body">
+
+      <!-- Step UI -->
+      <div class="steps-ui" id="steps-ui">
+        <div class="step-row"><div id="st1" class="step-dot pending">1</div><span id="st1-lbl">อัปโหลดไฟล์ไปยัง Google Drive</span></div>
+        <div class="step-row"><div id="st2" class="step-dot pending">2</div><span id="st2-lbl">บันทึกข้อมูลลง Google Sheet</span></div>
       </div>
-      <div>
+
+      <!-- ── ประเภทสื่อ ── -->
+      <div class="form-row">
+        <label class="form-label">ประเภทสื่อ<span class="req">*</span></label>
+        <div class="type-tabs">
+          <button type="button" class="type-tab active" data-type="image" onclick="switchType('image')">
+            <span class="tab-icon">🖼️</span><span>รูปภาพ</span>
+          </button>
+          <button type="button" class="type-tab" data-type="pdf" onclick="switchType('pdf')">
+            <span class="tab-icon">📄</span><span>PDF</span>
+          </button>
+          <button type="button" class="type-tab" data-type="video" onclick="switchType('video')">
+            <span class="tab-icon">🎬</span><span>วิดีโอ</span>
+          </button>
+          <button type="button" class="type-tab" data-type="youtube" onclick="switchType('youtube')">
+            <span class="tab-icon">▶️</span><span>YouTube</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── ชื่อกิจกรรม ── -->
+      <div class="form-row">
         <label class="form-label">ชื่อกิจกรรม<span class="req">*</span></label>
-        <input id="f-title" type="text" class="form-input" placeholder="เช่น งานอบรมพัฒนาบุคลากร 2567" maxlength="120" />
+        <input id="f-title" type="text" class="form-control" placeholder="เช่น งานอบรมพัฒนาบุคลากร 2567" maxlength="120" />
       </div>
-      <div class="grid grid-cols-2 gap-3">
+
+      <!-- ── วันที่ + หมวดหมู่ ── -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="form-row">
         <div>
           <label class="form-label">วันที่จัดกิจกรรม<span class="req">*</span></label>
-          <input id="f-date" type="date" class="form-input" />
+          <input id="f-date" type="date" class="form-control" />
         </div>
         <div>
           <label class="form-label">หมวดหมู่</label>
-          <div class="flex gap-1.5">
-            <select id="f-cat-select" class="form-select flex-1" onchange="syncCatInput(this.value)">
-              <option value="">-- เลือก --</option>
-              <option>อบรม</option>
-              <option>กีฬา</option>
-              <option>พิธีการ</option>
-              <option>จิตอาสา</option>
-              <option>วิชาการ</option>
-              <option>สังคม</option>
-              <option>อื่นๆ</option>
-            </select>
-          </div>
-          <input id="f-cat" type="text" class="form-input mt-1.5" placeholder="หรือพิมพ์เอง..." />
+          <select id="f-cat-sel" class="form-control" onchange="syncCat(this.value)">
+            <option value="">-- เลือก --</option>
+            <option>อบรม</option><option>กีฬา</option><option>พิธีการ</option>
+            <option>จิตอาสา</option><option>วิชาการ</option><option>สังคม</option><option>อื่นๆ</option>
+          </select>
+          <input id="f-cat" type="text" class="form-control" style="margin-top:6px;" placeholder="หรือพิมพ์เอง..." />
         </div>
       </div>
-      <div>
+
+      <!-- ── รายละเอียด ── -->
+      <div class="form-row">
         <label class="form-label">รายละเอียดกิจกรรม</label>
-        <textarea id="f-desc" class="form-textarea" placeholder="บรรยายกิจกรรมโดยย่อ..." maxlength="500"></textarea>
-        <div class="text-right text-xs text-slate-400 mt-1"><span id="char-count">0</span>/500</div>
+        <textarea id="f-desc" class="form-control" placeholder="บรรยายกิจกรรมโดยย่อ..." maxlength="500"></textarea>
+        <div style="text-align:right;font-size:11px;color:var(--muted);margin-top:4px;"><span id="char-cnt">0</span>/500</div>
       </div>
-      <div>
-        <label class="form-label">สถานะการแสดงผล</label>
-        <div class="flex gap-3">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="status" value="แสดง" checked class="accent-blue-600" />
-            <span class="font-sarabun text-sm text-slate-700">แสดง (เผยแพร่ทันที)</span>
+
+      <!-- ── สถานะ ── -->
+      <div class="form-row">
+        <label class="form-label">สถานะ</label>
+        <div style="display:flex;gap:16px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+            <input type="radio" name="status" value="แสดง" checked /> แสดง (เผยแพร่ทันที)
           </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="status" value="ซ่อน" class="accent-blue-600" />
-            <span class="font-sarabun text-sm text-slate-700">ซ่อน (บันทึกแต่ไม่แสดง)</span>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+            <input type="radio" name="status" value="ซ่อน" /> ซ่อน
           </label>
         </div>
       </div>
-      <div>
-        <label class="form-label">รูปภาพกิจกรรม</label>
+
+      <!-- ── Drop zone (image / pdf / video) ── -->
+      <div class="form-row" id="file-section">
+        <label class="form-label" id="file-label">รูปภาพกิจกรรม</label>
         <div id="drop-zone" class="drop-zone"
              ondragover="event.preventDefault();this.classList.add('drag-over')"
              ondragleave="this.classList.remove('drag-over')"
              ondrop="handleDrop(event)">
-          <input type="file" id="f-file" accept="image/*" onchange="handleFileSelect(this.files[0])" />
-          <div id="dz-label">
-            <div class="text-3xl mb-2">📷</div>
-            <p class="font-sarabun text-slate-600 text-sm">คลิกเลือกรูป หรือลากไฟล์มาวางที่นี่</p>
-            <p class="text-xs text-slate-400 mt-1">รองรับ JPG, PNG, WebP | ขนาดสูงสุด 10 MB</p>
+          <input type="file" id="f-file" accept="image/*" onchange="pickFile(this.files[0])" />
+          <div id="dz-hint">
+            <div id="dz-icon" style="font-size:2rem;margin-bottom:6px;">🖼️</div>
+            <p id="dz-text" style="font-size:13px;color:var(--ink3);">คลิกเลือกรูป หรือลากไฟล์มาวางที่นี่</p>
+            <p id="dz-sub" style="font-size:11px;color:var(--muted);margin-top:4px;">JPG, PNG, WebP · สูงสุด 10 MB</p>
           </div>
-          <img id="drop-preview" class="drop-preview" alt="preview" />
+          <img id="dz-preview" class="drop-preview" alt="preview" />
         </div>
-        <div id="dz-filename" class="text-xs text-slate-500 font-sarabun mt-2 hidden"></div>
-        <div id="current-image" class="text-xs text-slate-500 font-sarabun mt-2 hidden"></div>
-        <div class="prog-bar" id="prog-bar">
-          <div class="prog-fill" id="prog-fill" style="width:0%"></div>
-        </div>
+        <div class="prog-bar" id="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
       </div>
-      <div class="flex gap-3 pt-2">
-        <button class="btn-cancel flex-shrink-0" onclick="closeAddModal()">ยกเลิก</button>
+
+      <!-- ── YouTube URL section ── -->
+      <div class="form-row yt-section" id="yt-section">
+        <label class="form-label">YouTube URL<span class="req">*</span></label>
+        <input id="f-yt-url" type="url" class="form-control"
+               placeholder="https://www.youtube.com/watch?v=..."
+               oninput="previewYT(this.value)" />
+        <p style="font-size:11px;color:var(--muted);margin-top:5px;">
+          รองรับ: youtube.com/watch?v= · youtu.be/ · YouTube Shorts
+        </p>
+        <iframe id="yt-preview" class="yt-preview" allowfullscreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      </div>
+
+      <!-- ── Buttons ── -->
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="closeAddModal()">ยกเลิก</button>
         <button id="btn-save" class="btn-primary" onclick="submitActivity()">
-          <span id="btn-label">💾 บันทึกกิจกรรม</span>
+          <span id="btn-lbl">💾 บันทึกกิจกรรม</span>
         </button>
       </div>
+
     </div>
   </div>
 </div>
 
-<div id="delete-modal" class="modal-bg" onclick="if(event.target===this)closeDeleteModal()">
-  <div class="confirm-modal" onclick="event.stopPropagation()">
-    <div class="confirm-icon">🗑️</div>
-    <h3 class="confirm-title">ยืนยันการลบ</h3>
-    <p class="confirm-text">คุณแน่ใจหรือไม่ว่าต้องการลบกิจกรรมนี้?<br>การกระทำนี้ไม่สามารถย้อนกลับได้</p>
-    <div class="flex gap-3 justify-center">
-      <button class="btn-cancel" onclick="closeDeleteModal()">ยกเลิก</button>
-      <button id="btn-confirm-delete" class="btn-danger" onclick="confirmDelete()">ลบกิจกรรม</button>
-    </div>
-  </div>
-</div>
-
+<!-- ═══════════════ SCRIPT ═══════════════ -->
 <script>
-// ════════════════════════════════════════════════════════════
-//  CONFIG
-// ════════════════════════════════════════════════════════════
+/* ─────────────────────────────────────────────
+   CONFIG
+───────────────────────────────────────────── */
 const API = 'https://script.google.com/macros/s/AKfycbyPghqA070LklU4Y7hmirLaUtKDu6ii8li7B3bWzRiNTKUMds-Gbt1kufT67SCuOd0s/exec';
 
-// ════════════════════════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════════════════════════
-let allItems     = [];
-let activeFilter = 'ทั้งหมด';
-let searchQ      = '';
-let selectedFile = null;
-let currentSort  = 'newest';
-let currentPage  = 1;
-let itemsPerPage = 12;
-let editingRowId = null;
-let deletingRowId = null;
-let currentLightboxItem = null;
+/* ─────────────────────────────────────────────
+   STATE
+───────────────────────────────────────────── */
+let allItems      = [];
+let filtered      = [];
+let activeFilters = new Set(['ทั้งหมด']);
+let searchQ       = '';
+let sortMode      = 'newest';
+let selectedFile  = null;
+let currentType   = 'image';   // media type ที่เลือกใน modal
+let lbIndex       = 0;
 
-const CAT_COLORS = [
-  'bg-violet-100 text-violet-700','bg-emerald-100 text-emerald-700',
-  'bg-amber-100 text-amber-700','bg-rose-100 text-rose-700',
-  'bg-cyan-100 text-cyan-700','bg-indigo-100 text-indigo-700',
-  'bg-teal-100 text-teal-700','bg-orange-100 text-orange-700',
-];
-const catMap = {};
-const getCatColor = c => { if(!catMap[c]) catMap[c]=CAT_COLORS[Object.keys(catMap).length%CAT_COLORS.length]; return catMap[c]; };
+/* ─────────────────────────────────────────────
+   CATEGORY COLOR MAP
+───────────────────────────────────────────── */
+const catColorIdx = {};
+let catNext = 0;
+const getCatClass = c => {
+  if (catColorIdx[c] === undefined) catColorIdx[c] = catNext++ % 8;
+  return `cat--${catColorIdx[c]}`;
+};
 
-// ════════════════════════════════════════════════════════════
-//  GALLERY LOAD
-// ════════════════════════════════════════════════════════════
+/* ─────────────────────────────────────────────
+   MEDIA TYPE CONFIG
+───────────────────────────────────────────── */
+const MEDIA_META = {
+  image:   { icon: '🖼️', label: 'IMAGE',   badge: 'type-image',   hint: 'คลิกเลือกรูป หรือลากไฟล์มาวางที่นี่', sub: 'JPG, PNG, WebP · สูงสุด 10 MB', accept: 'image/*',   action: 'uploadImage', maxMB: 10  },
+  pdf:     { icon: '📄', label: 'PDF',     badge: 'type-pdf',     hint: 'คลิกเลือกไฟล์ PDF หรือลากมาวางที่นี่',  sub: 'ไฟล์ .pdf · สูงสุด 25 MB',       accept: '.pdf',      action: 'uploadPDF',   maxMB: 25  },
+  video:   { icon: '🎬', label: 'VIDEO',   badge: 'type-video',   hint: 'คลิกเลือกไฟล์วิดีโอ หรือลากมาวางที่นี่', sub: 'MP4, MOV, WebM · สูงสุด 100 MB', accept: 'video/*',   action: 'uploadVideo', maxMB: 100 },
+  youtube: { icon: '▶️', label: 'YOUTUBE', badge: 'type-youtube', hint: '', sub: '', accept: '', action: '', maxMB: 0 },
+};
+
+const MEDIA_TYPE_LABELS_TH = { image:'รูปภาพ', pdf:'เอกสาร PDF', video:'วิดีโอ', youtube:'YouTube' };
+
+/* ─────────────────────────────────────────────
+   SKELETON LOADER
+───────────────────────────────────────────── */
+function buildSkeletons() {
+  const heights = [160,220,180,240,170,200,190,150,230,175,210,165];
+  document.getElementById('s-skeleton').innerHTML = heights.map(h => `
+    <div class="skel-card">
+      <div class="skel-img" style="height:${h}px;"></div>
+      <div class="skel-body">
+        <div class="skel-line" style="width:55%;height:10px;margin-bottom:8px;"></div>
+        <div class="skel-line" style="width:90%;height:13px;margin-bottom:5px;"></div>
+        <div class="skel-line" style="width:70%;height:13px;margin-bottom:10px;"></div>
+        <div class="skel-line" style="width:40%;height:10px;"></div>
+      </div>
+    </div>`).join('');
+}
+
+/* ─────────────────────────────────────────────
+   LOAD GALLERY
+───────────────────────────────────────────── */
 async function loadGallery() {
-  showState('loading');
+  buildSkeletons();
+  show('skeleton');
   try {
     const r = await fetch(`${API}?action=getGallery&t=${Date.now()}`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
     if (!d.success) throw new Error(d.error || 'โหลดข้อมูลล้มเหลว');
 
-    allItems = d.data || [];
-    buildTabs(['ทั้งหมด', ...(d.categories||[])]);
-    updateStats(d.total, (d.categories||[]).length);
+    allItems = sortData(d.data || [], 'newest');
+    buildFilters(d.categories || []);
+    updateStats(d.total, (d.categories||[]).length, allItems);
     render();
   } catch(e) {
-    showState('error');
+    show('error');
     document.getElementById('err-msg').textContent = e.message;
   }
 }
 
-function buildTabs(cats) {
-  const wrap = document.getElementById('ftabs');
-  wrap.innerHTML = '';
-  cats.forEach(c => {
-    const b = document.createElement('button');
-    b.className = 'ftab' + (c===activeFilter?' on':'');
-    b.textContent = c;
-    b.onclick = () => { activeFilter=c; currentPage=1; wrap.querySelectorAll('.ftab').forEach(x=>x.classList.toggle('on',x.textContent===c)); render(); };
-    wrap.appendChild(b);
-  });
-}
-
-function getFilteredItems() {
-  const q = searchQ.toLowerCase();
-  let list = allItems.filter(i => {
-    const mc = activeFilter==='ทั้งหมด' || i.category===activeFilter;
-    const ms = !q || i.title.toLowerCase().includes(q) || i.description.toLowerCase().includes(q) || i.category.toLowerCase().includes(q);
-    return mc && ms;
-  });
-
-  switch(currentSort) {
-    case 'newest': list.sort((a,b) => parseThaiDate(b.date) - parseThaiDate(a.date)); break;
-    case 'oldest': list.sort((a,b) => parseThaiDate(a.date) - parseThaiDate(b.date)); break;
-    case 'az': list.sort((a,b) => a.title.localeCompare(b.title, 'th')); break;
-    case 'za': list.sort((a,b) => b.title.localeCompare(a.title, 'th')); break;
+/* ─────────────────────────────────────────────
+   SORT
+───────────────────────────────────────────── */
+function sortData(items, mode) {
+  const arr = [...items];
+  if (mode === 'newest' || mode === 'oldest') {
+    arr.sort((a,b) => {
+      const da = parseThaiDate(a.date), db = parseThaiDate(b.date);
+      return mode === 'newest' ? db-da : da-db;
+    });
+  } else if (mode === 'az') {
+    arr.sort((a,b) => a.title.localeCompare(b.title,'th'));
+  } else if (mode === 'za') {
+    arr.sort((a,b) => b.title.localeCompare(a.title,'th'));
   }
-  return list;
+  return arr;
 }
 
+const THAI_MONTHS = {'ม.ค.':0,'ก.พ.':1,'มี.ค.':2,'เม.ย.':3,'พ.ค.':4,'มิ.ย.':5,
+                     'ก.ค.':6,'ส.ค.':7,'ก.ย.':8,'ต.ค.':9,'พ.ย.':10,'ธ.ค.':11};
+function parseThaiDate(str) {
+  if (!str) return new Date(0);
+  const m = str.match(/(\d+)\s+(\S+)\s+(\d+)/);
+  if (m) return new Date(parseInt(m[3])-543, THAI_MONTHS[m[2]]??0, parseInt(m[1]));
+  const p = str.split('/');
+  if (p.length===3) return new Date(parseInt(p[2])-543, parseInt(p[1])-1, parseInt(p[0]));
+  return new Date(str);
+}
+
+function isNew(dateStr) {
+  return (new Date() - parseThaiDate(dateStr)) < 30*24*60*60*1000;
+}
+
+function countThisMonth(items) {
+  const n = new Date();
+  return items.filter(i=>{
+    const d = parseThaiDate(i.date);
+    return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth();
+  }).length;
+}
+
+/* ─────────────────────────────────────────────
+   FILTER PILLS
+───────────────────────────────────────────── */
+function buildFilters(cats) {
+  const allCats = ['ทั้งหมด', ...cats];
+  const wrap = document.getElementById('filter-pills');
+  wrap.innerHTML = '';
+  allCats.forEach(cat => {
+    const count = cat==='ทั้งหมด' ? allItems.length : allItems.filter(i=>i.category===cat).length;
+    const btn = document.createElement('button');
+    btn.className = 'pill' + (activeFilters.has(cat)?' active':'');
+    btn.dataset.cat = cat;
+    btn.innerHTML = `${esc(cat)} <span class="pill-count">${count}</span>`;
+    btn.onclick = () => toggleFilter(cat);
+    wrap.appendChild(btn);
+  });
+}
+
+function toggleFilter(cat) {
+  if (cat==='ทั้งหมด') {
+    activeFilters.clear(); activeFilters.add('ทั้งหมด');
+  } else {
+    activeFilters.delete('ทั้งหมด');
+    activeFilters.has(cat) ? activeFilters.delete(cat) : activeFilters.add(cat);
+    if (activeFilters.size===0) activeFilters.add('ทั้งหมด');
+  }
+  document.querySelectorAll('.pill').forEach(p =>
+    p.classList.toggle('active', activeFilters.has(p.dataset.cat)));
+  render();
+}
+
+/* ─────────────────────────────────────────────
+   RENDER CARDS
+───────────────────────────────────────────── */
 function render() {
+  let list = sortData(allItems, sortMode);
+  if (!activeFilters.has('ทั้งหมด'))
+    list = list.filter(i => activeFilters.has(i.category));
+  if (searchQ) {
+    const q = searchQ.toLowerCase();
+    list = list.filter(i =>
+      i.title.toLowerCase().includes(q) ||
+      i.description.toLowerCase().includes(q) ||
+      i.category.toLowerCase().includes(q));
+  }
+  filtered = list;
+
+  if (!list.length) { show('empty'); return; }
+  show('grid');
+
   const grid = document.getElementById('s-grid');
   grid.innerHTML = '';
 
-  const list = getFilteredItems();
+  list.forEach((item, i) => {
+    const el       = document.createElement('div');
+    el.className   = 'card';
+    el.style.animationDelay = `${Math.min(i*45,400)}ms`;
 
-  if (!list.length) { showState('empty'); return; }
-  showState('grid');
+    const type     = item.mediaType || 'image';
+    const meta     = MEDIA_META[type] || MEDIA_META.image;
+    const catClass = getCatClass(item.category);
+    const imgH     = 160 + (item.title.length % 5) * 22;
 
-  const totalPages = Math.ceil(list.length / itemsPerPage);
-  if (currentPage > totalPages) currentPage = totalPages || 1;
-  const start = (currentPage - 1) * itemsPerPage;
-  const pageItems = list.slice(start, start + itemsPerPage);
+    /* thumbnail ตาม type */
+    const thumb = item.thumbnail || item.imageUrl || '';
 
-  pageItems.forEach((item,i) => {
-    const el = document.createElement('div');
-    el.className = 'gcard reveal';
-    el.style.animationDelay = `${i*50}ms`;
-    const col = getCatColor(item.category);
+    /* badge ใหม่ */
+    const newBadge = isNew(item.date)
+      ? `<div class="badge-new">ใหม่</div>` : '';
+
+    /* media badge (type) */
+    const typeBadge = `<div class="media-badge ${meta.badge}">${meta.icon} ${meta.label}</div>`;
+
+    /* content ใน img-wrap ตาม type */
+    let mediaContent = '';
+    if (type === 'image') {
+      mediaContent = thumb
+        ? `<img class="card-img" data-src="${esc(thumb)}" alt="${esc(item.title)}" />
+           <div class="card-img-ph" style="display:none">🖼️</div>`
+        : `<div class="card-img-ph">🖼️</div>`;
+    } else if (type === 'pdf') {
+      mediaContent = thumb
+        ? `<img class="card-img" data-src="${esc(thumb)}" alt="${esc(item.title)}" />
+           <div class="card-img-ph" style="display:none">📄</div>`
+        : `<div class="pdf-overlay"><div class="pdf-icon">📄</div><div class="pdf-label">PDF</div></div>`;
+    } else if (type === 'video') {
+      mediaContent = thumb
+        ? `<img class="card-img" data-src="${esc(thumb)}" alt="${esc(item.title)}" />
+           <div class="card-img-ph" style="display:none">🎬</div>`
+        : `<div class="card-img-ph">🎬</div>`;
+      mediaContent += `<div class="play-overlay"><div class="play-btn">▶</div></div>`;
+    } else if (type === 'youtube') {
+      mediaContent = thumb
+        ? `<img class="card-img" data-src="${esc(thumb)}" alt="${esc(item.title)}" />
+           <div class="card-img-ph" style="display:none">▶️</div>`
+        : `<div class="card-img-ph">▶️</div>`;
+      mediaContent += `<div class="play-overlay"><div class="play-btn" style="background:rgba(255,0,0,0.9);color:#fff;">▶</div></div>`;
+    }
+
+    /* overlay hint ตาม type */
+    const hintMap = { image:'🔍 ดูภาพขยาย', pdf:'📄 เปิดเอกสาร', video:'▶ เล่นวิดีโอ', youtube:'▶ เล่น YouTube' };
+    const hint = hintMap[type] || '🔍 ดูรายละเอียด';
+
     el.innerHTML = `
-      <div class="cimg-wrap">
-        ${item.imageUrl
-          ? `<img class="cimg" src="${esc(item.imageUrl)}" alt="${esc(item.title)}" loading="lazy"
-                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-             <div class="cimg-ph" style="display:none">🖼️</div>`
-          : `<div class="cimg-ph">🖼️</div>`}
-        <div class="card-actions">
-          <button class="card-action-btn edit" onclick="event.stopPropagation();editItem(${item.id})" title="แก้ไข">✏️</button>
-          <button class="card-action-btn delete" onclick="event.stopPropagation();confirmDeleteItem(${item.id})" title="ลบ">🗑️</button>
-        </div>
+      ${newBadge}
+      ${typeBadge}
+      <div class="card-img-wrap" style="height:${imgH}px;">
+        ${mediaContent}
+        <div class="card-overlay"><div class="overlay-hint">${hint}</div></div>
       </div>
-      <div class="p-4">
-        <span class="badge ${col} mb-2">${esc(item.category)}</span>
-        <h3 class="font-prompt font-semibold text-slate-800 text-sm leading-snug line-clamp-2 mb-1">${esc(item.title)}</h3>
-        ${item.date?`<p class="text-xs text-slate-400 font-sarabun">📅 ${esc(item.date)}</p>`:''}
-        ${item.description?`<p class="text-xs text-slate-500 font-sarabun mt-2 leading-relaxed line-clamp-2">${esc(item.description)}</p>`:''}
+      <div class="card-body">
+        <span class="card-cat ${catClass}">${esc(item.category)}</span>
+        <h3 class="card-title">${esc(item.title)}</h3>
+        ${item.date ? `<div class="card-date">📅 ${esc(item.date)}</div>` : ''}
+        ${item.description ? `<p class="card-desc">${esc(item.description)}</p>` : ''}
       </div>`;
-    el.onclick = () => openLb(item);
+
+    el.onclick = () => openLB(i);
     grid.appendChild(el);
   });
 
-  renderPagination(list.length, totalPages);
+  lazyLoadImages();
 
-  const cnt = document.getElementById('s-count');
-  cnt.textContent = `แสดง ${pageItems.length} รายการ จากทั้งหมด ${list.length} รายการ (หน้า ${currentPage}/${totalPages})`;
-  cnt.classList.remove('hidden');
+  const info = document.getElementById('result-info');
+  info.textContent = `แสดง ${list.length} / ${allItems.length} รายการ`;
+  info.classList.remove('hidden');
 }
 
-function renderPagination(totalItems, totalPages) {
-  const wrap = document.getElementById('pagination');
-  if (totalPages <= 1) { wrap.classList.add('hidden'); return; }
-  wrap.classList.remove('hidden');
-
-  let html = '';
-  html += `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>◀</button>`;
-
-  for (let i=1; i<=totalPages; i++) {
-    if (i===1 || i===totalPages || (i>=currentPage-1 && i<=currentPage+1)) {
-      html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
-    } else if (i===currentPage-2 || i===currentPage+2) {
-      html += `<span class="text-slate-400 px-1">…</span>`;
-    }
+/* ─────────────────────────────────────────────
+   LAZY LOAD + BLUR-UP
+───────────────────────────────────────────── */
+function lazyLoadImages() {
+  const imgs = document.querySelectorAll('.card-img[data-src]');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const img = entry.target;
+        img.src = img.dataset.src;
+        img.onload  = () => img.classList.add('loaded');
+        img.onerror = () => {
+          img.style.display = 'none';
+          const ph = img.nextElementSibling;
+          if (ph && ph.classList.contains('card-img-ph')) ph.style.display='flex';
+        };
+        img.removeAttribute('data-src');
+        obs.unobserve(img);
+      });
+    }, { rootMargin: '120px' });
+    imgs.forEach(img => io.observe(img));
+  } else {
+    imgs.forEach(img => { img.src=img.dataset.src; img.onload=()=>img.classList.add('loaded'); });
   }
-
-  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>▶</button>`;
-  wrap.innerHTML = html;
 }
 
-function goPage(p) {
-  currentPage = p;
-  render();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function handleSortChange() {
-  currentSort = document.getElementById('sort').value;
-  currentPage = 1;
-  render();
-}
-
-function updateStats(total, cats) {
+/* ─────────────────────────────────────────────
+   STATS
+───────────────────────────────────────────── */
+function updateStats(total, cats, items) {
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-cat').textContent   = cats;
-  document.getElementById('stat-hidden').textContent = '—';
-  document.getElementById('stats').classList.remove('hidden');
+  document.getElementById('stat-new').textContent   = countThisMonth(items);
+  document.getElementById('stats-strip').classList.remove('hidden');
 }
 
-function showState(s) {
-  ['s-loading','s-error','s-empty','s-grid','s-count'].forEach(id => document.getElementById(id).classList.add('hidden'));
-  if (s==='loading') document.getElementById('s-loading').classList.remove('hidden');
-  if (s==='error')   document.getElementById('s-error').classList.remove('hidden');
-  if (s==='empty')   document.getElementById('s-empty').classList.remove('hidden');
-  if (s==='grid')    document.getElementById('s-grid').classList.remove('hidden');
+/* ─────────────────────────────────────────────
+   SHOW STATE
+───────────────────────────────────────────── */
+function show(state) {
+  ['s-skeleton','s-error','s-empty','s-grid'].forEach(id =>
+    document.getElementById(id).classList.toggle('hidden', !id.endsWith(state)));
+  if (state!=='grid') document.getElementById('result-info').classList.add('hidden');
 }
 
-// ════════════════════════════════════════════════════════════
-//  LIGHTBOX
-// ════════════════════════════════════════════════════════════
-function openLb(item) {
-  currentLightboxItem = item;
-  document.getElementById('lb-img').src      = item.imageUrl||'';
-  document.getElementById('lb-title').textContent = item.title;
-  document.getElementById('lb-date').textContent  = item.date||'—';
-  document.getElementById('lb-desc').textContent  = item.description||'ไม่มีรายละเอียด';
-  const b = document.getElementById('lb-badge');
-  b.textContent = item.category; b.className = `badge ${getCatColor(item.category)}`;
-  document.getElementById('lb-link').href = item.imageUrl||'#';
-  document.getElementById('lb-modal').classList.add('open');
+/* ─────────────────────────────────────────────
+   LIGHTBOX
+───────────────────────────────────────────── */
+function openLB(idx) {
+  lbIndex = idx;
+  renderLB();
+  document.getElementById('lb-backdrop').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-function closeLightbox(e) {
-  if (e && e.currentTarget !== e.target) return;
-  document.getElementById('lb-modal').classList.remove('open');
+
+function renderLB() {
+  const item = filtered[lbIndex];
+  if (!item) return;
+
+  const type = item.mediaType || 'image';
+  const meta = MEDIA_META[type] || MEDIA_META.image;
+
+  /* ซ่อน/แสดง media elements */
+  const elImg    = document.getElementById('lb-img');
+  const elVideo  = document.getElementById('lb-video');
+  const elIframe = document.getElementById('lb-iframe');
+  const elPh     = document.getElementById('lb-img-ph');
+
+  // หยุด media ก่อน
+  elVideo.pause();
+  elVideo.src   = '';
+  elIframe.src  = '';
+  elImg.src     = '';
+
+  [elImg, elVideo, elIframe, elPh].forEach(el => el.style.display='none');
+
+  if (type === 'image') {
+    if (item.fileUrl) {
+      elImg.src = item.fileUrl;
+      elImg.style.display = 'block';
+      elImg.onerror = () => { elImg.style.display='none'; elPh.style.display='flex'; };
+    } else {
+      elPh.style.display='flex';
+      elPh.textContent='🖼️';
+    }
+  } else if (type === 'video') {
+    elVideo.src = item.fileUrl || '';
+    elVideo.style.display = 'block';
+  } else if (type === 'pdf' || type === 'youtube') {
+    elIframe.src = type==='youtube'
+      ? toYTEmbed(item.fileUrl)
+      : item.fileUrl || '';
+    elIframe.style.display = 'block';
+  }
+
+  /* type badge */
+  const typeBadgeEl = document.getElementById('lb-type-badge');
+  typeBadgeEl.className = `lb-type-badge ${meta.badge}`;
+  typeBadgeEl.textContent = `${meta.icon} ${MEDIA_TYPE_LABELS_TH[type]||type}`;
+
+  /* category */
+  const catEl = document.getElementById('lb-cat');
+  catEl.textContent = item.category;
+  catEl.className   = `lb-cat ${getCatClass(item.category)}`;
+
+  document.getElementById('lb-title').textContent = item.title;
+  document.getElementById('lb-date').innerHTML    = item.date ? `📅 ${esc(item.date)}` : '';
+  document.getElementById('lb-desc').textContent  = item.description || 'ไม่มีรายละเอียด';
+  document.getElementById('lb-counter').textContent = `${lbIndex+1} / ${filtered.length}`;
+
+  /* download link (PDF เท่านั้น) */
+  const dlLink = document.getElementById('lb-download');
+  if (type === 'pdf') {
+    const downloadUrl = item.fileUrl.replace('/preview','').replace('/view','') + '/view';
+    dlLink.href = downloadUrl;
+    dlLink.style.display = 'flex';
+  } else {
+    dlLink.style.display = 'none';
+  }
+
+  /* original link */
+  const origLink = document.getElementById('lb-link');
+  const linkTextMap = { image:'🔗 ดูรูปต้นฉบับใน Google Drive', pdf:'🔗 เปิดใน Google Drive', video:'🔗 ดูวิดีโอต้นฉบับ', youtube:'🔗 เปิดบน YouTube' };
+  origLink.textContent = linkTextMap[type] || '🔗 ดูไฟล์ต้นฉบับ';
+  origLink.href = type==='youtube'
+    ? item.fileUrl
+    : (item.fileUrl||'#').replace('/preview','');
+
+  /* nav arrows */
+  document.getElementById('lb-prev').style.display = lbIndex>0 ? 'flex' : 'none';
+  document.getElementById('lb-next').style.display = lbIndex<filtered.length-1 ? 'flex' : 'none';
+}
+
+function toYTEmbed(url) {
+  if (!url) return '';
+  const m = url.match(/(?:v=|youtu\.be\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+  if (m) return `https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`;
+  return url;
+}
+
+function shiftLB(dir) {
+  /* หยุด media ก่อนเปลี่ยน */
+  const v = document.getElementById('lb-video');
+  v.pause(); v.src='';
+  document.getElementById('lb-iframe').src='';
+
+  const next = lbIndex + dir;
+  if (next<0 || next>=filtered.length) return;
+  lbIndex = next;
+  renderLB();
+}
+
+function closeLB(e) {
+  if (e && e.currentTarget!==e.target) return;
+  /* หยุด media */
+  const v = document.getElementById('lb-video');
+  v.pause(); v.src='';
+  document.getElementById('lb-iframe').src='';
+  document.getElementById('lb-backdrop').classList.remove('open');
   document.body.style.overflow='';
-  currentLightboxItem = null;
 }
 
-function editFromLightbox() {
-  if (!currentLightboxItem) return;
-  closeLightbox();
-  editItem(currentLightboxItem.id);
-}
-
-function deleteFromLightbox() {
-  if (!currentLightboxItem) return;
-  closeLightbox();
-  confirmDeleteItem(currentLightboxItem.id);
-}
-
-// ════════════════════════════════════════════════════════════
-//  ADD / EDIT MODAL
-// ════════════════════════════════════════════════════════════
+/* ─────────────────────────────────────────────
+   ADD MODAL
+───────────────────────────────────────────── */
 function openAddModal() {
   resetForm();
-  editingRowId = null;
-  document.getElementById('modal-title').textContent = 'เพิ่มกิจกรรมใหม่';
   document.getElementById('add-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  const today = new Date();
-  const yyyy  = today.getFullYear();
-  const mm    = String(today.getMonth()+1).padStart(2,'0');
-  const dd    = String(today.getDate()).padStart(2,'0');
-  document.getElementById('f-date').value = `${yyyy}-${mm}-${dd}`;
-}
-
-function editItem(rowId) {
-  const item = allItems.find(i => i.id === rowId);
-  if (!item) { showToast('ไม่พบข้อมูล','error'); return; }
-
-  resetForm();
-  editingRowId = rowId;
-  document.getElementById('modal-title').textContent = 'แก้ไขกิจกรรม';
-  document.getElementById('f-rowId').value = rowId;
-  document.getElementById('f-title').value = item.title;
-  document.getElementById('f-desc').value = item.description;
-  document.getElementById('f-cat').value = item.category;
-  document.getElementById('f-cat-select').value = item.category;
-
-  if (item.rawDate && item.rawDate.includes('T')) {
-    const d = new Date(item.rawDate);
-    document.getElementById('f-date').value = d.toISOString().split('T')[0];
-  } else if (item.date) {
-    const parts = item.date.split(/[\/\s]+/);
-    if (parts.length === 3) {
-      let d = parseInt(parts[0]);
-      let y = parseInt(parts[2]) - 543;
-      let m;
-      const thaiMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-      m = thaiMonths.indexOf(parts[1]);
-      if (m === -1) m = parseInt(parts[1]) - 1;
-      if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
-        document.getElementById('f-date').value = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      }
-    }
-  }
-
-  const statusRadio = document.querySelector(`input[name="status"][value="${item.status}"]`);
-  if (statusRadio) statusRadio.checked = true;
-
-  if (item.imageUrl) {
-    const ci = document.getElementById('current-image');
-    ci.innerHTML = `📎 รูปภาพปัจจุบัน: <a href="${esc(item.imageUrl)}" target="_blank" class="text-blue-600 hover:underline">ดูรูป</a> (อัปโหลดใหม่เพื่อเปลี่ยน)`;
-    ci.classList.remove('hidden');
-  }
-
-  document.getElementById('btn-label').textContent = '💾 บันทึกการแก้ไข';
-  document.getElementById('add-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
+  const t = new Date();
+  document.getElementById('f-date').value =
+    `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
 }
 
 function closeAddModal() {
   document.getElementById('add-modal').classList.remove('open');
-  document.body.style.overflow = '';
+  document.body.style.overflow='';
 }
 
-function handleModalBgClick(e) {
-  if (e.target === document.getElementById('add-modal')) closeAddModal();
+function handleModalBg(e) {
+  if (e.target===document.getElementById('add-modal')) closeAddModal();
 }
 
 function resetForm() {
-  document.getElementById('f-rowId').value = '';
-  document.getElementById('f-title').value = '';
-  document.getElementById('f-date').value  = '';
-  document.getElementById('f-cat').value   = '';
-  document.getElementById('f-cat-select').value = '';
-  document.getElementById('f-desc').value  = '';
-  document.querySelector('input[name="status"][value="แสดง"]').checked = true;
-  selectedFile = null;
-  document.getElementById('drop-preview').style.display = 'none';
-  document.getElementById('dz-label').style.display     = '';
-  document.getElementById('dz-filename').classList.add('hidden');
-  document.getElementById('current-image').classList.add('hidden');
-  document.getElementById('prog-bar').style.display     = 'none';
-  document.getElementById('prog-fill').style.width      = '0%';
-  document.getElementById('steps-ui').classList.add('hidden');
-  document.getElementById('char-count').textContent     = '0';
-  document.getElementById('btn-label').textContent      = '💾 บันทึกกิจกรรม';
+  ['f-title','f-date','f-cat','f-desc','f-yt-url'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value='';
+  });
+  document.getElementById('f-cat-sel').value='';
+  document.querySelector('input[name="status"][value="แสดง"]').checked=true;
+  selectedFile=null;
+  document.getElementById('dz-preview').style.display='none';
+  document.getElementById('dz-hint').style.display='';
+  document.getElementById('prog-bar').style.display='none';
+  document.getElementById('prog-fill').style.width='0%';
+  document.getElementById('steps-ui').style.display='none';
+  document.getElementById('char-cnt').textContent='0';
+  document.getElementById('yt-preview').src='';
+  document.getElementById('yt-preview').style.display='none';
   setBtnState(false);
   setStep(1,'pending'); setStep(2,'pending');
+  switchType('image');
 }
 
-function syncCatInput(val) {
-  if (val) document.getElementById('f-cat').value = val;
+/* ── Type switching ── */
+function switchType(type) {
+  currentType = type;
+  selectedFile = null;
+
+  /* อัปเดต tab active */
+  document.querySelectorAll('.type-tab').forEach(tab =>
+    tab.classList.toggle('active', tab.dataset.type===type));
+
+  const fileSection = document.getElementById('file-section');
+  const ytSection   = document.getElementById('yt-section');
+  const fileLabel   = document.getElementById('file-label');
+  const meta        = MEDIA_META[type];
+
+  if (type==='youtube') {
+    fileSection.style.display='none';
+    ytSection.style.display='';
+  } else {
+    fileSection.style.display='';
+    ytSection.style.display='none';
+
+    /* อัปเดต drop zone content */
+    document.getElementById('f-file').accept = meta.accept;
+    document.getElementById('dz-icon').textContent = meta.icon;
+    document.getElementById('dz-text').textContent = meta.hint;
+    document.getElementById('dz-sub').textContent  = meta.sub;
+    fileLabel.textContent = { image:'รูปภาพกิจกรรม', pdf:'ไฟล์ PDF', video:'ไฟล์วิดีโอ' }[type];
+
+    /* reset file preview */
+    document.getElementById('dz-preview').style.display='none';
+    document.getElementById('dz-hint').style.display='';
+  }
 }
 
-// ── File handling ─────────────────────────────────────────
+/* ── YouTube preview ── */
+function previewYT(url) {
+  const m = url.match(/(?:v=|youtu\.be\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+  const frame = document.getElementById('yt-preview');
+  if (m) {
+    frame.src = `https://www.youtube.com/embed/${m[1]}`;
+    frame.style.display='block';
+  } else {
+    frame.src='';
+    frame.style.display='none';
+  }
+}
+
+function syncCat(v) { if(v) document.getElementById('f-cat').value=v; }
+
+/* ── File drop/pick ── */
 function handleDrop(e) {
   e.preventDefault();
   document.getElementById('drop-zone').classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) handleFileSelect(file);
+  pickFile(e.dataTransfer.files[0]);
 }
 
-function handleFileSelect(file) {
+function pickFile(file) {
   if (!file) return;
-  if (!file.type.startsWith('image/')) { showToast('กรุณาเลือกไฟล์รูปภาพเท่านั้น','error'); return; }
-  if (file.size > 10 * 1024 * 1024)   { showToast('ไฟล์ใหญ่เกิน 10 MB กรุณาลดขนาดก่อน','error'); return; }
+  const meta = MEDIA_META[currentType];
 
-  selectedFile = file;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const prev = document.getElementById('drop-preview');
-    prev.src = ev.target.result;
-    prev.style.display = 'block';
-    document.getElementById('dz-label').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
+  if (currentType==='image' && !file.type.startsWith('image/')) {
+    showToast('กรุณาเลือกไฟล์รูปภาพ','error'); return;
+  }
+  if (currentType==='pdf' && file.type!=='application/pdf') {
+    showToast('กรุณาเลือกไฟล์ .pdf','error'); return;
+  }
+  if (currentType==='video' && !file.type.startsWith('video/')) {
+    showToast('กรุณาเลือกไฟล์วิดีโอ','error'); return;
+  }
+  if (file.size > meta.maxMB*1024*1024) {
+    showToast(`ไฟล์ใหญ่เกิน ${meta.maxMB} MB`,'error'); return;
+  }
 
-  const fn = document.getElementById('dz-filename');
-  fn.textContent = `📎 ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
-  fn.classList.remove('hidden');
+  selectedFile=file;
+
+  /* preview เฉพาะ image */
+  if (currentType==='image') {
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const prev=document.getElementById('dz-preview');
+      prev.src=ev.target.result; prev.style.display='block';
+      document.getElementById('dz-hint').style.display='none';
+    };
+    reader.readAsDataURL(file);
+  } else {
+    document.getElementById('dz-hint').style.display='none';
+    document.getElementById('dz-preview').style.display='none';
+    // แสดงชื่อไฟล์แทน
+    document.getElementById('dz-icon').textContent = MEDIA_META[currentType].icon;
+    const hint = document.getElementById('dz-hint');
+    hint.style.display='';
+    hint.innerHTML=`<div style="font-size:2rem;">${MEDIA_META[currentType].icon}</div>
+      <p style="font-size:13px;color:var(--ink3);margin-top:6px;">📎 ${esc(file.name)}</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:3px;">${(file.size/1024/1024).toFixed(2)} MB</p>`;
+  }
 }
 
-// ── Submit ────────────────────────────────────────────────
+/* ── Submit ── */
 async function submitActivity() {
-  const title  = document.getElementById('f-title').value.trim();
-  const dateRaw= document.getElementById('f-date').value;
-  const cat    = document.getElementById('f-cat').value.trim() || 'ทั่วไป';
-  const desc   = document.getElementById('f-desc').value.trim();
-  const status = document.querySelector('input[name="status"]:checked').value;
-  const rowId  = document.getElementById('f-rowId').value;
+  const title   = document.getElementById('f-title').value.trim();
+  const dateRaw = document.getElementById('f-date').value;
+  const cat     = document.getElementById('f-cat').value.trim() || 'ทั่วไป';
+  const desc    = document.getElementById('f-desc').value.trim();
+  const status  = document.querySelector('input[name="status"]:checked').value;
+  const ytUrl   = (document.getElementById('f-yt-url')||{}).value?.trim()||'';
 
-  if (!title) { showToast('กรุณากรอกชื่อกิจกรรม','error'); document.getElementById('f-title').focus(); return; }
-  if (!dateRaw){ showToast('กรุณาเลือกวันที่','error'); document.getElementById('f-date').focus(); return; }
+  if (!title)   { showToast('กรุณากรอกชื่อกิจกรรม','error'); return; }
+  if (!dateRaw) { showToast('กรุณาเลือกวันที่','error'); return; }
+  if (currentType==='youtube' && !ytUrl) { showToast('กรุณากรอก YouTube URL','error'); return; }
 
-  const [yyyy,mm,dd] = dateRaw.split('-');
-  const dateFormatted = `${dd}/${mm}/${yyyy}`;
+  const [y,m,d] = dateRaw.split('-');
+  const dateFormatted = `${d}/${m}/${y}`;
 
   setBtnState(true);
-  document.getElementById('steps-ui').classList.remove('hidden');
+  document.getElementById('steps-ui').style.display='';
 
-  let imageUrl = '';
-  const existingItem = rowId ? allItems.find(i => i.id === parseInt(rowId)) : null;
+  let fileUrl='', thumbnail='';
 
-  if (selectedFile) {
-    setStep(1,'active','กำลังอัปโหลดรูปภาพ...');
+  /* ─ Step 1: Upload file ─ */
+  if (currentType==='youtube') {
+    setStep(1,'done','ใช้ YouTube URL (ไม่ต้องอัปโหลด)');
+    fileUrl   = ytUrl;
+    thumbnail = '';
+  } else if (selectedFile) {
+    const meta = MEDIA_META[currentType];
+    setStep(1,'active',`กำลังอัปโหลด ${meta.label}...`);
     setProgress(15);
-
     try {
-      const base64 = await fileToBase64(selectedFile);
+      const base64 = await fileToB64(selectedFile);
       setProgress(40);
-
-      const upRes = await postAPI({
-        action:   'uploadImage',
+      const res = await postAPI({
+        action:   meta.action,
         filename: selectedFile.name,
         mimeType: selectedFile.type,
         data:     base64,
       });
       setProgress(75);
-
-      if (!upRes.success) throw new Error(upRes.error || 'อัปโหลดล้มเหลว');
-      imageUrl = upRes.directUrl;
-      setStep(1,'done','อัปโหลดรูปภาพสำเร็จ ✓');
-    } catch (e) {
-      setStep(1,'fail','อัปโหลดล้มเหลว: ' + e.message);
-      showToast('อัปโหลดรูปล้มเหลว: ' + e.message, 'error');
-      setBtnState(false);
-      return;
+      if (!res.success) throw new Error(res.error||'อัปโหลดล้มเหลว');
+      fileUrl   = res.directUrl   || res.fileUrl || '';
+      thumbnail = res.thumbnailUrl|| '';
+      setStep(1,'done',`อัปโหลด ${meta.label} สำเร็จ ✓`);
+    } catch(e) {
+      setStep(1,'fail','อัปโหลดล้มเหลว: '+e.message);
+      showToast('อัปโหลดล้มเหลว: '+e.message,'error');
+      setBtnState(false); return;
     }
-  } else if (existingItem && existingItem.imageUrl) {
-    imageUrl = existingItem.imageUrl;
-    setStep(1,'done','ใช้รูปภาพเดิม');
   } else {
-    setStep(1,'done','ไม่มีรูปภาพ (ข้ามขั้นตอนนี้)');
+    setStep(1,'done','ไม่มีไฟล์แนบ (ข้าม)');
   }
 
-  setStep(2,'active', rowId ? 'กำลังบันทึกการแก้ไข...' : 'กำลังบันทึกข้อมูล...');
+  /* ─ Step 2: Save to Sheet ─ */
+  setStep(2,'active','กำลังบันทึกข้อมูล...');
   setProgress(88);
-
   try {
-    const payload = {
-      action: rowId ? 'updateActivity' : 'addActivity',
-      date: dateFormatted,
+    const res = await postAPI({
+      action:      'addActivity',
+      date:        dateFormatted,
       title, description: desc, category: cat,
-      imageUrl, status,
-    };
-    if (rowId) payload.rowId = parseInt(rowId);
-
-    const saveRes = await postAPI(payload);
-
-    if (!saveRes.success) throw new Error(saveRes.error || 'บันทึกล้มเหลว');
-
+      fileUrl,  thumbnail,
+      mediaType:   currentType,
+      status,
+    });
+    if (!res.success) throw new Error(res.error||'บันทึกล้มเหลว');
     setProgress(100);
-    setStep(2,'done', rowId ? 'บันทึกการแก้ไขสำเร็จ ✓' : 'บันทึกลง Google Sheet สำเร็จ ✓');
-    showToast(rowId ? `แก้ไขกิจกรรม "${title}" สำเร็จ! ✨` : `เพิ่มกิจกรรม "${title}" สำเร็จ! 🎉`, 'success');
-
-    setTimeout(() => {
-      closeAddModal();
-      loadGallery();
-    }, 1200);
-
+    setStep(2,'done','บันทึกสำเร็จ ✓');
+    showToast(`เพิ่ม "${title}" สำเร็จ! 🎉`,'success');
+    setTimeout(()=>{ closeAddModal(); loadGallery(); }, 1200);
   } catch(e) {
-    setStep(2,'fail','บันทึกล้มเหลว: ' + e.message);
-    showToast('บันทึกล้มเหลว: ' + e.message,'error');
+    setStep(2,'fail','บันทึกล้มเหลว: '+e.message);
+    showToast('บันทึกล้มเหลว: '+e.message,'error');
     setBtnState(false);
   }
 }
 
-// ── Delete ────────────────────────────────────────────────
-function confirmDeleteItem(rowId) {
-  deletingRowId = rowId;
-  document.getElementById('delete-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeDeleteModal() {
-  document.getElementById('delete-modal').classList.remove('open');
-  document.body.style.overflow = '';
-  deletingRowId = null;
-}
-
-async function confirmDelete() {
-  if (!deletingRowId) return;
-
-  const btn = document.getElementById('btn-confirm-delete');
-  btn.disabled = true;
-  btn.textContent = '⏳ กำลังลบ...';
-
-  try {
-    const res = await postAPI({ action: 'deleteActivity', rowId: deletingRowId });
-    if (!res.success) throw new Error(res.error || 'ลบล้มเหลว');
-
-    showToast('ลบกิจกรรมสำเร็จ', 'success');
-    closeDeleteModal();
-    loadGallery();
-  } catch(e) {
-    showToast('ลบล้มเหลว: ' + e.message, 'error');
-    btn.disabled = false;
-    btn.textContent = 'ลบกิจกรรม';
-  }
-}
-
-// ── Helpers ───────────────────────────────────────────────
-function fileToBase64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload  = e => res(e.target.result.split(',')[1]);
-    r.onerror = () => rej(new Error('อ่านไฟล์ล้มเหลว'));
+/* ─────────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────────── */
+function fileToB64(file) {
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>res(e.target.result.split(',')[1]);
+    r.onerror=()=>rej(new Error('อ่านไฟล์ล้มเหลว'));
     r.readAsDataURL(file);
   });
 }
 
 async function postAPI(payload) {
-  const r = await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(payload),
+  const r = await fetch(API,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify(payload),
   });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  if(!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
 
 function setProgress(pct) {
-  document.getElementById('prog-bar').style.display = '';
-  document.getElementById('prog-fill').style.width  = pct + '%';
+  document.getElementById('prog-bar').style.display='';
+  document.getElementById('prog-fill').style.width=pct+'%';
 }
-
 function setBtnState(loading) {
-  const btn   = document.getElementById('btn-save');
-  const label = document.getElementById('btn-label');
-  btn.disabled  = loading;
-  label.textContent = loading ? '⏳ กำลังดำเนินการ...' : (editingRowId ? '💾 บันทึกการแก้ไข' : '💾 บันทึกกิจกรรม');
+  const btn=document.getElementById('btn-save');
+  btn.disabled=loading;
+  document.getElementById('btn-lbl').textContent=loading?'⏳ กำลังดำเนินการ...':'💾 บันทึกกิจกรรม';
 }
-
-function setStep(n, state, text) {
-  const dot   = document.getElementById(`st${n}`);
-  const label = document.getElementById(`st${n}-label`);
-  dot.className = `step-dot ${state}`;
-  dot.textContent = state==='done'?'✓' : state==='fail'?'✗' : n;
-  if (text) {
-    label.textContent = text;
-    label.style.color = state==='done'?'#059669' : state==='fail'?'#dc2626' : '#0369a1';
+function setStep(n,state,text) {
+  const dot=document.getElementById(`st${n}`);
+  const lbl=document.getElementById(`st${n}-lbl`);
+  dot.className=`step-dot ${state}`;
+  dot.textContent=state==='done'?'✓':state==='fail'?'✗':n;
+  if(text){
+    lbl.textContent=text;
+    lbl.style.color=state==='done'?'#059669':state==='fail'?'#dc2626':'var(--accent)';
   }
 }
 
-// ── Toast ─────────────────────────────────────────────────
-let toastTimer;
-function showToast(msg, type='info') {
-  clearTimeout(toastTimer);
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className   = `show ${type}`;
-  toastTimer = setTimeout(() => { t.className = type; }, 3500);
+/* ─────────────────────────────────────────────
+   TOAST
+───────────────────────────────────────────── */
+let toastT;
+function showToast(msg,type='info') {
+  clearTimeout(toastT);
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`show ${type}`;
+  toastT=setTimeout(()=>t.className=type,3500);
 }
 
-// ── Search ────────────────────────────────────────────────
-let searchDebounce;
-document.getElementById('search').addEventListener('input', e => {
-  clearTimeout(searchDebounce);
-  searchDebounce = setTimeout(() => { searchQ = e.target.value.trim(); currentPage=1; render(); }, 280);
-});
-
-// ── Char count ───────────────────────────────────────────
-document.getElementById('f-desc').addEventListener('input', e => {
-  document.getElementById('char-count').textContent = e.target.value.length;
-});
-
-// ── Keyboard ─────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key !== 'Escape') return;
-  document.getElementById('lb-modal').classList.remove('open');
-  document.getElementById('add-modal').classList.remove('open');
-  document.getElementById('delete-modal').classList.remove('open');
-  document.body.style.overflow = '';
-});
-
-// ── Escape HTML ──────────────────────────────────────────
+/* ─────────────────────────────────────────────
+   ESCAPE HTML
+───────────────────────────────────────────── */
 function esc(s) {
-  if (!s) return '';
+  if(!s) return '';
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── Parse Thai Date for sorting ─────────────────────────
-function parseThaiDate(dateStr) {
-  if (!dateStr) return new Date(0);
-  const parts = dateStr.split(/[\/\s]+/);
-  if (parts.length === 3) {
-    let d = parseInt(parts[0]);
-    let y = parseInt(parts[2]) - 543;
-    let m;
-    const thaiMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-    m = thaiMonths.indexOf(parts[1]);
-    if (m === -1) m = parseInt(parts[1]) - 1;
-    if (!isNaN(y) && !isNaN(m) && !isNaN(d)) return new Date(y, m, d);
-  }
-  return new Date(0);
-}
+/* ─────────────────────────────────────────────
+   EVENTS
+───────────────────────────────────────────── */
+let searchDebT;
+document.getElementById('search-input').addEventListener('input', e=>{
+  clearTimeout(searchDebT);
+  searchDebT=setTimeout(()=>{ searchQ=e.target.value.trim(); render(); },260);
+});
 
-// ════════════════════════════════════════════════════════════
-//  INIT
-// ════════════════════════════════════════════════════════════
-document.getElementById('yr').textContent = new Date().getFullYear();
+document.getElementById('sort-select').addEventListener('change', e=>{
+  sortMode=e.target.value; render();
+});
+
+document.getElementById('f-desc').addEventListener('input', e=>{
+  document.getElementById('char-cnt').textContent=e.target.value.length;
+});
+
+document.addEventListener('keydown', e=>{
+  const lb=document.getElementById('lb-backdrop');
+  if(lb.classList.contains('open')){
+    if(e.key==='Escape'){ closeLB(); return; }
+    if(e.key==='ArrowLeft')  shiftLB(-1);
+    if(e.key==='ArrowRight') shiftLB(+1);
+  }
+  if(e.key==='Escape') closeAddModal();
+});
+
+/* ─────────────────────────────────────────────
+   INIT
+───────────────────────────────────────────── */
+document.getElementById('yr').textContent=new Date().getFullYear();
 loadGallery();
 </script>
 </body>
